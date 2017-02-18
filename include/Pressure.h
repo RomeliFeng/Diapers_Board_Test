@@ -14,6 +14,8 @@
 class PressureClass {
 public:
 	void RefreshData();
+private:
+	void GPIOInit();
 };
 
 extern PressureClass Pressure;
