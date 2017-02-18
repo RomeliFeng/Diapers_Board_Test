@@ -90,6 +90,8 @@ public:
 	void SelectCh(AnalogCh_Typedef ch, uint16_t cnt);
 	void RefreshData(AnalogBd_Typedef bo);
 	void SampleSync();
+private:
+	void GPIOInit();
 };
 
 extern AnalogClass Analog;

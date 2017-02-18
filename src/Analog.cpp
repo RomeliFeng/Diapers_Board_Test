@@ -16,6 +16,8 @@
 #define STCP_PIN GPIO_Pin_2
 #define SHCP_PIN GPIO_Pin_3
 
+#define SAM_Pin GPIO_Pin_0
+
 #define AnalogBd1_16_Off 0x0c00
 #define AnalogBd16_32_Off 0x0a00
 #define AnalogBd32_48_Off 0x0600
@@ -27,8 +29,8 @@
 #define PWM_Period 18000
 #define PWM_Duty 9000
 
-#define NTCCom 1.1388 //热敏电阻内阻补偿值 此值只在1.5Cycle采样时有效
-#define HRCom 1.42 //HR202信号内阻补偿
+#define NTCCom 1.1414 //热敏电阻内阻补偿值 此值只在1.5Cycle采样时有效
+#define HRCom 1.414 //HR202信号内阻补偿
 
 volatile static uint16_t Status_Now = 0x0000;
 
@@ -96,12 +98,25 @@ const uint16_t AnalogChAdd[16] = { 0x0000, 0x0010, 0x0008, 0x0018, 0x0004,
 
 /*设置信号生成的时基和同步采样的时机*/
 AnalogClass::AnalogClass() {
+	GPIOInit();
+
 	PWM.Init(PWM_Period, PWM_Period / 2);
 	PWM.SetPrescaler(3);
 	PWM.SetPolarity(PWMCh_1, PWMPolarity_Low);
 	PWM.SetPolarity(PWMCh_2, PWMPolarity_Low);
 	PWM.SetPolarity(PWMCh_3, PWMPolarity_High);
 	PWM.SetDuty(PWMCh_1, 4000);
+}
+
+void AnalogClass::GPIOInit() {
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = SAM_Pin;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
 /*控制HC595切换板卡*/
@@ -154,7 +169,6 @@ void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 	/*开始采样HR202信号，需要同步采样*/
 	uint8_t index = 0;
 	uint8_t index_off;
-
 	while (index < (AnalogCh_NTC)) { //采样数据
 		index_off = index;
 		SampleSync();
