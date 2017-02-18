@@ -1,7 +1,7 @@
 /*
  * main.h
  *
- *  Created on: 2017Äê1ÔÂ8ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½8ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -18,6 +18,5 @@
 #include "Protocol.h"
 #include "ProComFun.h"
 #include "TimeTick.h"
-
 
 #endif /* MAIN_H_ */

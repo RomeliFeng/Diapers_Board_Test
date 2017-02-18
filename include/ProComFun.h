@@ -1,7 +1,7 @@
 /*
  * ProtocolComFunction.h
  *
- *  Created on: 2017Äê1ÔÂ11ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½11ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -52,10 +52,8 @@ void Special_BootLoader();
 
 bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet, uint16_t pre);
 
-extern ProtocolCom_Typedef Protocol_Command_Now;
-extern uint8_t Protocol_DataLen_Now;
-extern uint8_t Protocol_Data_Now[10];
-extern uint8_t SendBuf[100];
-extern uint8_t SendBufLen;
+extern PC_Typedef PC_Run;
+extern uint8_t PC_Run_DataLen;
+extern uint8_t PC_Run_Data[10];
 
 #endif /* PROTOCOLCOMFUNCTION_H_ */

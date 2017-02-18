@@ -1,157 +1,162 @@
 /*
  * Protocol.cpp
  *
- *  Created on: 2017Äê1ÔÂ7ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½7ï¿½ï¿½
  *      Author: Romeli
  */
 
 #include "Protocol.h"
 #include "U_USART1.h"
-#include "TimeTick.h"
 
 #define COMMAND_OFFSET 0
 #define DATALEN_OFFSET 1
 #define DATA_OFFSET 2
 
-ProtocolCom_Typedef Protocol_Command = ProtocolCom_None;
-volatile bool Protocol_Command_Flag = false;
-volatile bool Protocol_Command_Running_Flag = false;
+PC_Typedef P_Receive_Command = PC_None;
+uint8_t P_Receive_Data[20];
+uint8_t P_Receive_DataLen = 0;
 
-uint8_t Protocol_DataLen = 0;
-uint8_t Protocol_Data[10];
-uint8_t Protocol_Sum = 0;
-uint8_t Protocol_Sum_Check = 0;
-
-uint8_t Protocol_SendBuf[100];
+volatile bool P_Receive_Flag = false;
+volatile bool P_Running_Flag = false;
 
 void Serial_Event() {
-	ProtocolAnStruct_Typedef ProStruct;
-	Protocol_Analysis(&ProStruct);
-	uint8_t sendbuf[30];
-	uint8_t command_get = Protocol_SendBuf[COMMAND_OFFSET];
+	PA_Struct_Typedef pa_struct;
 	uint8_t buftmp[20];
-	uint8_t bufindex = 0;
-	switch (ProStruct.an) {
-	case ProtocolAn_CommondError: //Ö¸Áî½âÎöÊ§°Ü
-		for (uint8_t i = 0; i < Protocol_SendBuf[DATALEN_OFFSET]; ++i) {
-			buftmp[bufindex++] = Protocol_SendBuf[DATA_OFFSET + i];
+	uint8_t sendbuf[20];
+	uint8_t sendbuflen = 0;
+
+	Protocol_Analysis(&pa_struct); //åˆ†ææŒ‡ä»¤
+	switch (pa_struct.pa) {
+	case PA_Ok: //æ•°æ®å¸§æ— å¼‚å¸¸
+		P_Receive_Command = (PC_Typedef) pa_struct.data[COMMAND_OFFSET]; //ä»ç¼“å†²ä¸­å–å¾—å‘½ä»¤
+		P_Receive_DataLen = pa_struct.data[DATALEN_OFFSET]; //ä»ç¼“å†²ä¸­å–å¾—æ•°æ®é•¿åº¦
+		for (uint8_t i = 0; i < P_Receive_DataLen; ++i) { //ä»ç¼“å†²ä¸­æ¬ç§»å‡ºæ•°æ®
+			P_Receive_Data[i] = pa_struct.data[DATA_OFFSET + i];
 		}
-		Protocol_Format(ProtocolCom_Post_CommandError, bufindex, command_get,
-				buftmp, sendbuf, &bufindex);
-		Serial.print(sendbuf, bufindex);
+		sendbuflen = Protocol_Format(PC_Post_Get, P_Receive_DataLen + 1,
+				P_Receive_Command, P_Receive_Data, sendbuf);
+		Serial.print(sendbuf, sendbuflen);
+		P_Receive_Flag = true; //ç½®ä½æ”¶åˆ°æ–°çš„æŒ‡ä»¤æ ‡å¿—
 		break;
-	case ProtocolAn_CheckSumError: //Ö¸ÁîĞ£ÑéÊ§°Ü
+	case PA_CommondError: //æœªçŸ¥æŒ‡ä»¤
+		for (uint8_t i = 0; i < pa_struct.data[DATALEN_OFFSET]; ++i) {
+			buftmp[i] = pa_struct.data[DATA_OFFSET + i];
+		}
+		sendbuflen = Protocol_Format(PC_Post_CommandError,
+				pa_struct.data[DATALEN_OFFSET], pa_struct.data[COMMAND_OFFSET],
+				buftmp, sendbuf);
+		Serial.print(sendbuf, sendbuflen);
+		break;
+	case PA_CheckSumError: //Ö¸æ ¡éªŒå¤±è´¥
 		uint8_t i;
-		for (i = 0; i < Protocol_SendBuf[DATALEN_OFFSET]; ++i) {
-			buftmp[bufindex++] = Protocol_SendBuf[DATA_OFFSET + i];
+		for (i = 0; i < pa_struct.data[DATALEN_OFFSET]; ++i) {
+			sendbuf[i] = pa_struct.data[DATA_OFFSET + i];
 		}
-		buftmp[bufindex++] = ProStruct.code; //·µ»ØµÄ¼ÆËãµÄĞ£ÑéÖµ
-		Protocol_Format(ProtocolCom_Post_CheckSumError, bufindex, command_get,
-				buftmp, sendbuf, &bufindex);
-		Serial.print(sendbuf, bufindex);
+		sendbuf[i++] = pa_struct.code; //æ·»åŠ ä¸Šè¿”å›å€¼Öµ
+		sendbuflen = Protocol_Format(PC_Post_CheckSumError,
+				pa_struct.data[DATALEN_OFFSET] + 1,
+				pa_struct.data[COMMAND_OFFSET], buftmp, sendbuf);
+		Serial.print(sendbuf, sendbuflen);
 		break;
-	case ProtocolAn_FrameError: //Ö¡¸ñÊ½Ğ£ÑéÊ§°Ü
-		Protocol_Format(ProtocolCom_Post_CommandError, 1, command_get,
-				&ProStruct.code, sendbuf, &bufindex);
-		Serial.print(sendbuf, bufindex);
+	case PA_FrameError: //Ö¡å¸§æ ¼å¼é”™è¯¯
+		sendbuflen = Protocol_Format(PC_Post_CommandError, 1,
+				pa_struct.data[DATALEN_OFFSET], &pa_struct.code, sendbuf);
+		Serial.print(sendbuf, sendbuflen);
 		break;
 	default:
 		break;
 	}
 }
 
-void Protocol_Analysis(ProtocolAnStruct_Typedef* ProStruct) {
-	if (!((Serial.read() == 0xff) && (Serial.read() == 0xff))) { //ÆğÊ¼Î»²»¶Ô
-		(*ProStruct).an = ProtocolAn_FrameError;
-		(*ProStruct).code = 0x00;
+void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {
+	if (!((Serial.read() == 0xff) && (Serial.read() == 0xff))) { //èµ·å§‹ç¬¦é”™è¯¯
+		pa_struct->pa = PA_FrameError;
+		pa_struct->code = 0x00;
 		return;
 	}
-	if (Serial.available() > 20) { //³¬³¤ÃüÁî
-		(*ProStruct).an = ProtocolAn_FrameError;
-		(*ProStruct).code = 0x01;
+	if (Serial.available() > 20) { //å¸§é•¿åº¦å¼‚å¸¸
+		pa_struct->pa = PA_FrameError;
+		pa_struct->code = 0x01;
 		return;
 	}
 	uint8_t frameLen = Serial.available();
-	Serial.read(Protocol_SendBuf, frameLen);
-	if (frameLen != 1 + 1 + Protocol_SendBuf[DATALEN_OFFSET] + 1) { //Êı¾İÖ¡³¤¶È²»¶Ô
-		(*ProStruct).an = ProtocolAn_FrameError;
-		(*ProStruct).code = 0x02;
+	Serial.read(pa_struct->data, frameLen); //è¯»å–å¸§æ•°æ®åˆ°ä¸´æ—¶ç¼“å†²
+	if (frameLen != 1 + 1 + pa_struct->data[DATALEN_OFFSET] + 1) { //åˆ¤æ–­å¸§æ•°æ®é•¿åº¦æ˜¯å¦æ­£å¸¸
+		pa_struct->pa = PA_FrameError;
+		pa_struct->code = 0x02;
 		return;
 	}
-	switch (Protocol_SendBuf[COMMAND_OFFSET]) {
-	case ProtocolCom_Check_Digital:
-	case ProtocolCom_Check_Analog:
-	case ProtocolCom_Check_Pressure:
-	case ProtocolCom_Check_Flow:
-	case ProtocolCom_Check_Limit:
-	case ProtocolCom_Check_Water:
-	case ProtocolCom_Check_Stepper:
-	case ProtocolCom_Contrl_Valve:
-	case ProtocolCom_Contrl_Motor:
-	case ProtocolCom_AutoContrl_Valve_With_Flow:
-	case ProtocolCom_AutoContrl_Motor_With_Limit:
-	case ProtocolCom_AutoContrl_Motor_With_Time:
-	case ProtocolCom_AutoContrl_Stepper_With_Limit:
-	case ProtocolCom_AutoContrl_Stepper_With_Presure:
-	case ProtocolCom_AutoContrl_Stepper_With_Step:
-	case ProtocolCom_AutoContrl_Stepper_With_Position:
-	case ProtocolCom_Setting_ClearFlow:
-	case ProtocolCom_Setting_SetStepperLimit:
-	case ProtocolCom_Setting_ClearStepperPositon:
-	case ProtocolCom_Special_Reset:
-	case ProtocolCom_Special_Stop:
-	case ProtocolCom_Special_Continue:
-	case ProtocolCom_Special_Online:
-	case ProtocolCom_Special_Cacel:
-	case ProtocolCom_Special_BootLoader:
-		Protocol_Command = (ProtocolCom_Typedef) Protocol_SendBuf[COMMAND_OFFSET];
+
+	switch (pa_struct->data[COMMAND_OFFSET]) { //åˆ¤æ–­æŒ‡ä»¤å­—èŠ‚æ˜¯å¦æœ‰æ•ˆ
+	case PC_Check_Digital:
+	case PC_Check_Analog:
+	case PC_Check_Pressure:
+	case PC_Check_Flow:
+	case PC_Check_Limit:
+	case PC_Check_Water:
+	case PC_Check_Stepper:
+	case PC_Contrl_Valve:
+	case PC_Contrl_Motor:
+	case PC_AutoContrl_Valve_With_Flow:
+	case PC_AutoContrl_Motor_With_Limit:
+	case PC_AutoContrl_Motor_With_Time:
+	case PC_AutoContrl_Stepper_With_Limit:
+	case PC_AutoContrl_Stepper_With_Presure:
+	case PC_AutoContrl_Stepper_With_Step:
+	case PC_AutoContrl_Stepper_With_Position:
+	case PC_Setting_ClearFlow:
+	case PC_Setting_SetStepperLimit:
+	case PC_Setting_ClearStepperPositon:
+	case PC_Special_Reset:
+	case PC_Special_Stop:
+	case PC_Special_Continue:
+	case PC_Special_Online:
+	case PC_Special_Cacel:
+	case PC_Special_BootLoader:
 		break;
-	default: //Î´ÖªÃüÁî
-		(*ProStruct).an = ProtocolAn_CommondError;
+	default: //æœªçŸ¥æŒ‡ä»¤
+		pa_struct->pa = PA_CommondError;
 		return;
 	}
+	PC_Typedef p_receive_command;
+	uint8_t p_receive_datalen;
+	uint8_t p_sum, p_sumcheck = 0;
+	p_receive_command = (PC_Typedef) pa_struct->data[COMMAND_OFFSET];
+	p_receive_datalen = pa_struct->data[DATALEN_OFFSET]; //æ ¹æ®åç§»é‡å–å¾—æ•°æ®é•¿åº¦
 
-	Protocol_Sum = Protocol_SendBuf[DATA_OFFSET + Protocol_SendBuf[DATALEN_OFFSET]]; //»ñÈ¡sum
-	Protocol_Sum_Check = 0; //¼ÆËãÇ°ÏÈÇåÁã
-	Protocol_DataLen = Protocol_SendBuf[DATALEN_OFFSET]; //»ñÈ¡Êı¾İ³¤¶È
-	Protocol_Sum_Check = Protocol_Command + Protocol_DataLen; //¼ÆËãsum
-	for (uint8_t i = 0; i < Protocol_SendBuf[DATALEN_OFFSET]; ++i) {
-		Protocol_Data[i] = Protocol_SendBuf[DATA_OFFSET + i]; //°áÒÆÊı¾İ²¢¼ÆËãsum
-		Protocol_Sum_Check += Protocol_SendBuf[DATA_OFFSET + i];
+	p_sum = pa_struct->data[DATA_OFFSET + pa_struct->data[DATALEN_OFFSET]]; //æ ¹æ®åç§»é‡å–å¾—æ ¡éªŒç 
+	p_sumcheck = p_receive_command + p_receive_datalen; //å…ˆç´¯åŠ æŒ‡ä»¤å­—èŠ‚å’Œæ•°æ®é•¿åº¦å­—èŠ‚
+	for (uint8_t i = 0; i < p_receive_datalen; ++i) {
+		p_sumcheck += pa_struct->data[DATA_OFFSET + i]; //ç´¯åŠ æ•°æ®å­—èŠ‚
 	}
-	if (Protocol_Sum_Check != Protocol_Sum) { //¼ÆËãµÄsumºÍÊÕµ½µÄ²»·û
-		(*ProStruct).an = ProtocolAn_CheckSumError;
-		(*ProStruct).code = Protocol_Sum_Check;
+	if (p_sumcheck != p_sum) { //å–å¾—çš„æ ¡éªŒå­—èŠ‚å’Œè®¡ç®—ä¸ä¸€è‡´ï¼Œæ ¡éªŒä¸é€šè¿‡
+		pa_struct->pa = PA_CheckSumError;
+		pa_struct->code = p_sumcheck;
 		return;
 	}
+	for (uint8_t i = 0; i < p_receive_datalen; i++) {
+	}
 
-	uint8_t sendbuf[100];
-	uint8_t sendbuflen;
-	Protocol_Format(ProtocolCom_Post_Get, Protocol_DataLen, Protocol_Command,
-			(uint8_t*) Protocol_Data, sendbuf, &sendbuflen); //¸ñÊ½»¯Ö¸ÁîÊÕµ½»Ø¸´
-	Serial.print(sendbuf, sendbuflen);
-	(*ProStruct).an = ProtocolAn_Ok;
-
-	Protocol_Command_Flag = true; //Êı¾İÑéÖ¤³É¹¦
+	pa_struct->pa = PA_Ok;
 }
 
-void Protocol_Format(ProtocolCom_Typedef com, uint8_t datalen, uint8_t com_get,
-		uint8_t* data, uint8_t* sendbuf, uint8_t* sendbuflen) {
+uint8_t Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
+		uint8_t* data, uint8_t* sendbuf) {
 	uint8_t index = 0;
 	uint8_t sum = 0;
 
 	sendbuf[index++] = 0xff;
-	sendbuf[index++] = 0xff; //ÆğÊ¼Î»
-	sendbuf[index++] = com; //Ö¸Áî
-//ÒÔÏÂÊı¾İ¿ªÊ¼¼ÆËãÇóºÍ
-	sendbuf[index++] = datalen + 1;	//Êı¾İ³¤¶È
-	sum = com + datalen + 1;
-	sendbuf[index++] = com_get;	//·µ»ØÊı¾İ»ùÓÚµÄÖ¸Áî
-	sum += com_get;
-	for (uint8_t i = 0; i < datalen; ++i) {	//Ìî³äÊı¾İ
+	sendbuf[index++] = 0xff; //å¡«å……èµ·å§‹å­—èŠ‚
+	sendbuf[index++] = com; //å¡«å……æŒ‡ä»¤å­—èŠ‚
+	sendbuf[index++] = datalen + 1;	//å¡«å……æ•°æ®é•¿åº¦å­—èŠ‚ï¼ˆæŒ‡ä»¤å­—èŠ‚+æ•°æ®é•¿åº¦ï¼‰
+	sum = com + (datalen + 1);	//å…ˆç´¯åŠ æŒ‡ä»¤å­—èŠ‚å’Œæ•°æ®é•¿åº¦å­—èŠ‚
+	sendbuf[index++] = com_get;	//å¡«å……æ”¶åˆ°çš„æŒ‡ä»¤
+	sum += com_get;	//ç´¯åŠ æ ¡éªŒ
+	for (uint8_t i = 0; i < datalen; ++i) {	//å¾ªç¯ç´¯åŠ æ•°æ®ä½ï¼Œå¹¶å¡«å……å‘é€ç¼“å†²
 		sendbuf[index++] = *(data + i);
 		sum += *(data + i);
 	}
 	sendbuf[index++] = sum;	//sum
-	*sendbuflen = 2 + 1 + 1 + 1 + datalen + 1; //ÆğÊ¼Î»+Ö¸Áî+Ö¸Áî³¤¶È+ÊÕµ½µÄÖ¸Áî+»Ø¸´µÄÊı¾İ+Ğ£Ñé
+	//èµ·å§‹å­—èŠ‚2+æŒ‡ä»¤å­—èŠ‚1+æ•°æ®é•¿åº¦å­—èŠ‚1+æ”¶åˆ°çš„æŒ‡ä»¤1+æ•°æ®é•¿åº¦+æ ¡éªŒ
+	return (2 + 1 + 1 + 1 + datalen + 1);
 }

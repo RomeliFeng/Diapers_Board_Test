@@ -42,168 +42,167 @@ int main(int argc, char* argv[]) {
 
 	Serial.print((uint8_t*) InitBuf, 5);
 	while (1) {
-		if (Protocol_Command_Flag) {
-			//ÓÐÐÂµÄÖ¸Áî °áÒÆ½øÔÝ´æÇø
+		if (P_Receive_Flag) {
+			//ï¿½ï¿½ï¿½Âµï¿½Ö¸ï¿½ï¿½ ï¿½ï¿½ï¿½Æ½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½
 			uint8_t DataBuf[10];
-			for (uint8_t i = 0; i < Protocol_DataLen; ++i) {
-				DataBuf[i] = Protocol_Data[i];
+			for (uint8_t i = 0; i < P_Receive_DataLen; ++i) {
+				DataBuf[i] = P_Receive_Data[i];
 			}
 
-			Protocol_Command_Flag = false; //Çå³ýÐÂÖ¸Áî±êÖ¾
-			Protocol_Command_Running_Flag = true; //ÖÃÎ»Ö¸ÁîÖ´ÐÐÖÐ±êÖ¾
-			switch (Protocol_Command) {
-			case ProtocolCom_Check_Digital:
+			P_Receive_Flag = false; //ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ö¾
+			P_Running_Flag = true; //ï¿½ï¿½Î»Ö¸ï¿½ï¿½Ö´ï¿½ï¿½ï¿½Ð±ï¿½Ö¾
+			switch (P_Receive_Command) {
+			case PC_Check_Digital:
 				Check_Digital();
 				break;
-			case ProtocolCom_Check_Analog:
+			case PC_Check_Analog:
 				Check_Analog(DataBuf);
 				break;
-			case ProtocolCom_Check_Pressure:
+			case PC_Check_Pressure:
 				Check_Pressure();
 				break;
-			case ProtocolCom_Check_Flow:
+			case PC_Check_Flow:
 				Check_Flow(DataBuf);
 				break;
-			case ProtocolCom_Check_Limit:
+			case PC_Check_Limit:
 				Check_Limit();
 				break;
-			case ProtocolCom_Check_Water:
+			case PC_Check_Water:
 				Check_Water();
 				break;
-			case ProtocolCom_Check_Stepper:
+			case PC_Check_Stepper:
 				Check_Stepper(DataBuf);
 				break;
-			case ProtocolCom_Contrl_Valve:
+			case PC_Contrl_Valve:
 				Contrl_Valve(DataBuf);
 				break;
-			case ProtocolCom_Contrl_Motor:
+			case PC_Contrl_Motor:
 				Contrl_Motor(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Valve_With_Flow:
+			case PC_AutoContrl_Valve_With_Flow:
 				TimeTick.Enable();
 				AutoContrl_Valve_With_Flow(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Motor_With_Limit:
+			case PC_AutoContrl_Motor_With_Limit:
 				TimeTick.Enable();
 				AutoContrl_Motor_With_Limit(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Motor_With_Time:
+			case PC_AutoContrl_Motor_With_Time:
 				TimeTick.Enable();
 				AutoContrl_Motor_With_Time(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Stepper_With_Limit:
+			case PC_AutoContrl_Stepper_With_Limit:
 				TimeTick.Enable();
 				AutoContrl_Stepper_With_Limit(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Stepper_With_Presure:
+			case PC_AutoContrl_Stepper_With_Presure:
 				TimeTick.Enable();
 				AutoContrl_Stepper_With_Presure(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Stepper_With_Step:
+			case PC_AutoContrl_Stepper_With_Step:
 				TimeTick.Enable();
 				AutoContrl_Stepper_With_Step(DataBuf);
 				break;
-			case ProtocolCom_AutoContrl_Stepper_With_Position:
+			case PC_AutoContrl_Stepper_With_Position:
 				TimeTick.Enable();
 				AutoContrl_Stepper_With_Position(DataBuf);
 				break;
-			case ProtocolCom_Setting_ClearFlow:
+			case PC_Setting_ClearFlow:
 				Setting_ClearFlow();
 				break;
-			case ProtocolCom_Setting_SetStepperLimit:
+			case PC_Setting_SetStepperLimit:
 				Setting_SetStepperLimit(DataBuf);
 				break;
-			case ProtocolCom_Setting_ClearStepperPositon:
+			case PC_Setting_ClearStepperPositon:
 				Setting_ClearStepperPosition(DataBuf);
 				break;
-			case ProtocolCom_Special_Reset:
+			case PC_Special_Reset:
 				Special_Reset();
 				break;
-			case ProtocolCom_Special_Stop:
+			case PC_Special_Stop:
 				Special_Stop();
 				break;
-			case ProtocolCom_Special_Continue:
+			case PC_Special_Continue:
 				Special_Continue();
 				break;
-			case ProtocolCom_Special_Online:
+			case PC_Special_Online:
 				Special_Online();
 				break;
-			case ProtocolCom_Special_Cacel:
+			case PC_Special_Cacel:
 				Special_Cacel();
 				break;
 			default:
 				break;
 			}
-			Protocol_Command_Running_Flag = false;
+			P_Running_Flag = false;
 			TimeTick.Disable();
 		}
 	}
 }
 
 void TimeTickISR() {
-	if ((Protocol_Command_Running_Flag == true)
-			&& (Protocol_Command_Flag == true)) { //ÊÕµ½ÐÂµÄÖ¸Áî£¬²¢ÇÒÕýÔÚÖ´ÐÐ×Ô¶¯¿ØÖÆ
+	if ((P_Running_Flag == true) && (P_Receive_Flag == true)) { //ï¿½Õµï¿½ï¿½Âµï¿½Ö¸ï¿½î£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½
 
-		//°áÒÆ½øÔÝ´æÇø
+		//ï¿½ï¿½ï¿½Æ½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½
 		uint8_t DataBuf[10];
-		for (uint8_t i = 0; i < Protocol_DataLen; ++i) {
-			DataBuf[i] = Protocol_Data[i];
+		for (uint8_t i = 0; i < P_Receive_DataLen; ++i) {
+			DataBuf[i] = P_Receive_Data[i];
 		}
 
-		switch (Protocol_Command) {
-		case ProtocolCom_Check_Digital:
+		switch (P_Receive_Command) {
+		case PC_Check_Digital:
 			Check_Digital();
 			break;
-//		case ProtocolCom_Check_Analog:
+//		case PC_Check_Analog:
 //			Check_Analog(DataBuf);
 //			break;
-		case ProtocolCom_Check_Pressure:
+		case PC_Check_Pressure:
 			Check_Pressure();
 			break;
-		case ProtocolCom_Check_Flow:
+		case PC_Check_Flow:
 			Check_Flow(DataBuf);
 			break;
-		case ProtocolCom_Check_Limit:
+		case PC_Check_Limit:
 			Check_Limit();
 			break;
-		case ProtocolCom_Check_Water:
+		case PC_Check_Water:
 			Check_Water();
 			break;
-		case ProtocolCom_Check_Stepper:
+		case PC_Check_Stepper:
 			Check_Stepper(DataBuf);
 			break;
-		case ProtocolCom_Contrl_Valve:
+		case PC_Contrl_Valve:
 			Contrl_Valve(DataBuf);
 			break;
-		case ProtocolCom_Contrl_Motor:
+		case PC_Contrl_Motor:
 			Contrl_Motor(DataBuf);
 			break;
-		case ProtocolCom_Special_Reset:
+		case PC_Special_Reset:
 			Special_Reset();
 			break;
-		case ProtocolCom_Special_Stop:
+		case PC_Special_Stop:
 			Special_Stop();
 			break;
-		case ProtocolCom_Special_Continue:
+		case PC_Special_Continue:
 			Special_Continue();
 			break;
-		case ProtocolCom_Special_Online:
+		case PC_Special_Online:
 			Special_Online();
 			break;
-		case ProtocolCom_Special_Cacel:
+		case PC_Special_Cacel:
 			Special_Cacel();
 			break;
 		default:
 			uint8_t SendBuf[100];
 			uint8_t SendBufLen = 0;
 
-			Protocol_Format(ProtocolCom_Post_Busy, Protocol_DataLen,
-					Protocol_Command, Protocol_Data, SendBuf, &SendBufLen);
+			SendBufLen = Protocol_Format(PC_Post_Busy, P_Receive_DataLen,
+					P_Receive_Command, P_Receive_Data, SendBuf);
 			Serial.print(SendBuf, SendBufLen);
-			Protocol_Command_Flag = false;
+			P_Receive_Flag = false;
 			break;
 		}
-		Protocol_Command_Flag = false;
+		P_Receive_Flag = false;
 	}
 }
 #pragma GCC diagnostic pop
