@@ -21,8 +21,10 @@ public:
 	void Write(uint16_t data);
 	inline void Disable();
 	inline void Enable();
+
 private:
 	void GPIOInit();
+	inline void Delay();
 	GPIO_TypeDef* GPIOPort;
 	uint16_t DS_PIN;
 	uint16_t OE_PIN;

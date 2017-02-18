@@ -17,6 +17,7 @@ public:
 	uint32_t Read(uint8_t len);
 private:
 	void GPIOInit();
+	inline void Delay();
 	GPIO_TypeDef* GPIOPort;
 	uint16_t PL_PIN;
 	uint16_t CP_PIN;

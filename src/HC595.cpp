@@ -51,57 +51,21 @@ void HC595Class::GPIOInit() {
 
 void HC595Class::Write(uint16_t data) {
 	STCP_RESET;	//先置为低电平 以便产生上升沿更新脉冲
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
+	Delay();
 	for (uint16_t mask = 0x8000; mask != 0; mask >>= 1) {
 		SHCP_RESET; ////先置为低电平 以便产生上升沿移位脉冲  Qn>>Q(n+1)
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
+		Delay();
 		if ((mask & data) != 0) {
 			DS_SET;
-
 		} else {
 			DS_RESET;
 		}
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
+		Delay();
 		SHCP_SET;
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
+		Delay();
 	}
 	STCP_SET;
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
+	Delay();
 	Enable();
 }
 
@@ -113,3 +77,6 @@ inline void HC595Class::Enable() {
 	OE_RESET; //使能输出
 }
 
+inline void HC595Class::Delay() {
+	__NOP();
+}

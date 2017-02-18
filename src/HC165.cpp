@@ -27,25 +27,11 @@ HC165Class::HC165Class(GPIO_TypeDef* GPIOx, uint16_t PL, uint16_t CP,
 uint32_t HC165Class::Read(uint8_t len) {
 	uint32_t data = 0;
 	PL_RESET;
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
+	Delay();
 	PL_SET; //产生一个低电平所存信号
 	CP_RESET; //拉低以便产生上升沿
 	CE_RESET; //使能时钟
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
+	Delay();
 	uint32_t mask = (1 << (len - 1));
 	if (DAT_READ != 0) {
 		data |= mask;
@@ -53,36 +39,15 @@ uint32_t HC165Class::Read(uint8_t len) {
 	mask >>= 1;
 	for (; mask != 0; mask >>= 1) {
 		CP_SET;
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
+		Delay();
 		if (DAT_READ != 0) {
 			data |= mask;
 		}
 		CP_RESET;
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
-		__NOP();
+		Delay();
 	}
 	CE_SET;
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
-	__NOP();
+	Delay();
 	return data;
 }
 
@@ -109,4 +74,8 @@ void HC165Class::GPIOInit() {
 	GPIO_InitStructure.GPIO_Pin = DAT_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOPort, &GPIO_InitStructure);
+}
+
+inline void HC165Class::Delay() {
+		__NOP();
 }
