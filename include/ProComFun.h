@@ -23,26 +23,32 @@
 #include "U_EXTI.h"
 #include "Water.h"
 
+void PC_Check(P_Buf_Typedef *p_buf);
+void PC_Contrl(P_Buf_Typedef *p_buf);
+void PC_AutoContrl(P_Buf_Typedef *p_buf);
+void PC_Setting(P_Buf_Typedef *p_buf);
+void PC_Special(P_Buf_Typedef *p_buf);
+
 void Check_Digital();
-void Check_Analog(uint8_t* ProData);
+void Check_Analog(P_Buf_Typedef *p_buf);
 void Check_Pressure();
-void Check_Flow(uint8_t* ProData);
+void Check_Flow(P_Buf_Typedef *p_buf);
 void Check_Limit();
 void Check_Water();
-void Check_Stepper(uint8_t* ProData);
-void Contrl_Valve(uint8_t* ProData);
-void Contrl_Motor(uint8_t* ProData);
-void Contrl_Stepper(uint8_t* ProData);
-void AutoContrl_Valve_With_Flow(uint8_t* ProData);
-void AutoContrl_Motor_With_Time(uint8_t* ProData);
-void AutoContrl_Motor_With_Limit(uint8_t* ProData);
-void AutoContrl_Stepper_With_Limit(uint8_t* ProData);
-void AutoContrl_Stepper_With_Presure(uint8_t* ProData);
-void AutoContrl_Stepper_With_Step(uint8_t* ProData);
-void AutoContrl_Stepper_With_Position(uint8_t* ProData);
+void Check_Stepper(P_Buf_Typedef *p_buf);
+void Contrl_Valve(P_Buf_Typedef *p_buf);
+void Contrl_Motor(P_Buf_Typedef *p_buf);
+void Contrl_Stepper(P_Buf_Typedef *p_buf);
+void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf);
+void AutoContrl_Motor_With_Time(P_Buf_Typedef *p_buf);
+void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf);
+void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf);
+void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf);
+void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf);
+void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf);
 void Setting_ClearFlow();
-void Setting_SetStepperLimit(uint8_t* ProData);
-void Setting_ClearStepperPosition(uint8_t* ProData);
+void Setting_SetStepperLimit(P_Buf_Typedef *p_buf);
+void Setting_ClearStepperPosition(P_Buf_Typedef *p_buf);
 void Special_Reset();
 void Special_Stop();
 void Special_Continue();

@@ -1,7 +1,7 @@
 /*
  * TimeTick.h
  *
- *  Created on: 2017Äê1ÔÂ11ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½11ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -16,8 +16,7 @@ public:
 		TIMInit();
 		NVICInit();
 	}
-	void Enable();
-	void Disable();
+	bool ThreadStart = false;
 private:
 	void TIMInit();
 	void NVICInit();

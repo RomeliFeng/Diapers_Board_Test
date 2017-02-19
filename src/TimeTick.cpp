@@ -1,15 +1,13 @@
 /*
  * TimeTick.cpp
  *
- *  Created on: 2017Äê1ÔÂ11ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½11ï¿½ï¿½
  *      Author: Romeli
  */
 
 #include "TimeTick.h"
 
 #define TIM_Interval 10  //n*100uS
-
-bool TimeTick_Flag = false;
 
 TimeTickClass TimeTick;
 
@@ -35,19 +33,9 @@ void TimeTickClass::NVICInit() {
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 6;
 	NVIC_Init(&NVIC_InitStructure);
 
-	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
 	TIM_Cmd(TIM3, ENABLE);
-}
-
-void TimeTickClass::Enable() {
-	TimeTick_Flag = true;
-	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-}
-
-void TimeTickClass::Disable() {
-	TimeTick_Flag = false;
-	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
 }
 
 void __attribute__((weak)) TimeTickISR() {

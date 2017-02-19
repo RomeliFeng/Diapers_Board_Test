@@ -7,83 +7,78 @@
 
 #include "Protocol.h"
 #include "U_USART1.h"
+#include "TimeTick.h"
+#include "ProComFun.h"
 
 #define COMMAND_OFFSET 0
 #define DATALEN_OFFSET 1
 #define DATA_OFFSET 2
 
-PC_Typedef P_Receive_Command = PC_None;
-uint8_t P_Receive_Data[20];
-uint8_t P_Receive_DataLen = 0;
-
-volatile bool P_Receive_Flag = false;
-volatile bool P_Running_Flag = false;
+P_Buf_Typedef P_ReceiveBuf;
+volatile bool P_ReceiveFlag = false;
+volatile bool P_RunningFlag = false;
 
 void Serial_Event() {
 	PA_Struct_Typedef pa_struct;
-	uint8_t buftmp[20];
-	uint8_t sendbuf[20];
-	uint8_t sendbuflen = 0;
+	DataBuf_Typedef sendbuf;
 
 	Protocol_Analysis(&pa_struct); //分析指令
 	switch (pa_struct.pa) {
 	case PA_Ok: //数据帧无异常
-		P_Receive_Command = (PC_Typedef) pa_struct.data[COMMAND_OFFSET]; //从缓冲中取得命令
-		P_Receive_DataLen = pa_struct.data[DATALEN_OFFSET]; //从缓冲中取得数据长度
-		for (uint8_t i = 0; i < P_Receive_DataLen; ++i) { //从缓冲中搬移出数据
-			P_Receive_Data[i] = pa_struct.data[DATA_OFFSET + i];
+		P_ReceiveBuf.pc = (PC_Typedef) pa_struct.data[COMMAND_OFFSET]; //从缓冲中取得命令
+		P_ReceiveBuf.len = pa_struct.data[DATALEN_OFFSET]; //从缓冲中取得数据长度
+		for (uint8_t i = 0; i < P_ReceiveBuf.len; ++i) { //从缓冲中搬移出数据
+			P_ReceiveBuf.data[i] = pa_struct.data[DATA_OFFSET + i];
 		}
-		sendbuflen = Protocol_Format(PC_Post_Get, P_Receive_DataLen + 1,
-				P_Receive_Command, P_Receive_Data, sendbuf);
-		Serial.print(sendbuf, sendbuflen);
-		P_Receive_Flag = true; //置位收到新的指令标志
+		Protocol_Format(PC_Post_Get, P_ReceiveBuf.len, P_ReceiveBuf.pc,
+				P_ReceiveBuf.data, &sendbuf);
+		Serial.print(sendbuf.data, sendbuf.len);
+		P_ReceiveFlag = true; //置位收到新的指令标志
 		break;
 	case PA_CommondError: //未知指令
-		for (uint8_t i = 0; i < pa_struct.data[DATALEN_OFFSET]; ++i) {
-			buftmp[i] = pa_struct.data[DATA_OFFSET + i];
-		}
-		sendbuflen = Protocol_Format(PC_Post_CommandError,
-				pa_struct.data[DATALEN_OFFSET], pa_struct.data[COMMAND_OFFSET],
-				buftmp, sendbuf);
-		Serial.print(sendbuf, sendbuflen);
+		Protocol_Format(PC_Post_CommandError, pa_struct.data[DATALEN_OFFSET],
+				pa_struct.data[COMMAND_OFFSET], &pa_struct.data[DATA_OFFSET],
+				&sendbuf);
+		Serial.print(sendbuf.data, sendbuf.len);
 		break;
-	case PA_CheckSumError: //ָ校验失败
-		uint8_t i;
-		for (i = 0; i < pa_struct.data[DATALEN_OFFSET]; ++i) {
-			sendbuf[i] = pa_struct.data[DATA_OFFSET + i];
-		}
-		sendbuf[i++] = pa_struct.code; //添加上返回值ֵ
-		sendbuflen = Protocol_Format(PC_Post_CheckSumError,
+	case PA_CheckSumError: //ָ校验失败ֵ
+		Protocol_Format(PC_Post_CheckSumError,
 				pa_struct.data[DATALEN_OFFSET] + 1,
-				pa_struct.data[COMMAND_OFFSET], buftmp, sendbuf);
-		Serial.print(sendbuf, sendbuflen);
+				pa_struct.data[COMMAND_OFFSET], &pa_struct.data[DATA_OFFSET],
+				&sendbuf);
+		Serial.print(sendbuf.data, sendbuf.len);
 		break;
 	case PA_FrameError: //֡帧格式错误
-		sendbuflen = Protocol_Format(PC_Post_CommandError, 1,
-				pa_struct.data[DATALEN_OFFSET], &pa_struct.code, sendbuf);
-		Serial.print(sendbuf, sendbuflen);
+		Protocol_Format(PC_Post_CommandError, 1, pa_struct.data[DATALEN_OFFSET],
+				pa_struct.data, &sendbuf);
+		Serial.print(sendbuf.data, sendbuf.len);
 		break;
 	default:
 		break;
+	}
+
+	if ((P_ReceiveBuf.pc & PC_Mask) == PC_Special_Mask) {
+		PC_Special(&P_ReceiveBuf);
+		P_ReceiveFlag = false; //清零收到新的指令标志
 	}
 }
 
 void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {
 	if (!((Serial.read() == 0xff) && (Serial.read() == 0xff))) { //起始符错误
 		pa_struct->pa = PA_FrameError;
-		pa_struct->code = 0x00;
+		pa_struct->data[0] = 0xf0;
 		return;
 	}
 	if (Serial.available() > 20) { //帧长度异常
 		pa_struct->pa = PA_FrameError;
-		pa_struct->code = 0x01;
+		pa_struct->data[0] = 0xf1;
 		return;
 	}
 	uint8_t frameLen = Serial.available();
 	Serial.read(pa_struct->data, frameLen); //读取帧数据到临时缓冲
 	if (frameLen != 1 + 1 + pa_struct->data[DATALEN_OFFSET] + 1) { //判断帧数据长度是否正常
 		pa_struct->pa = PA_FrameError;
-		pa_struct->code = 0x02;
+		pa_struct->data[0] = 0xf2;
 		return;
 	}
 
@@ -131,32 +126,31 @@ void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {
 	}
 	if (p_sumcheck != p_sum) { //取得的校验字节和计算不一致，校验不通过
 		pa_struct->pa = PA_CheckSumError;
-		pa_struct->code = p_sumcheck;
+		pa_struct->data[DATA_OFFSET + pa_struct->data[DATALEN_OFFSET]] =
+				p_sumcheck; //最后拼接上正确的校验
 		return;
-	}
-	for (uint8_t i = 0; i < p_receive_datalen; i++) {
 	}
 
 	pa_struct->pa = PA_Ok;
 }
 
-uint8_t Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
-		uint8_t* data, uint8_t* sendbuf) {
+void Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
+		uint8_t* data, DataBuf_Typedef *sendbuf) {
 	uint8_t index = 0;
 	uint8_t sum = 0;
 
-	sendbuf[index++] = 0xff;
-	sendbuf[index++] = 0xff; //填充起始字节
-	sendbuf[index++] = com; //填充指令字节
-	sendbuf[index++] = datalen + 1;	//填充数据长度字节（指令字节+数据长度）
+	sendbuf->data[index++] = 0xff;
+	sendbuf->data[index++] = 0xff; //填充起始字节
+	sendbuf->data[index++] = com; //填充指令字节
+	sendbuf->data[index++] = datalen + 1;	//填充数据长度字节（指令字节+数据长度）
 	sum = com + (datalen + 1);	//先累加指令字节和数据长度字节
-	sendbuf[index++] = com_get;	//填充收到的指令
+	sendbuf->data[index++] = com_get;	//填充收到的指令
 	sum += com_get;	//累加校验
 	for (uint8_t i = 0; i < datalen; ++i) {	//循环累加数据位，并填充发送缓冲
-		sendbuf[index++] = *(data + i);
+		sendbuf->data[index++] = *(data + i);
 		sum += *(data + i);
 	}
-	sendbuf[index++] = sum;	//sum
+	sendbuf->data[index++] = sum;	//sum
 	//起始字节2+指令字节1+数据长度字节1+收到的指令1+数据长度+校验
-	return (2 + 1 + 1 + 1 + datalen + 1);
+	sendbuf->len = (2 + 1 + 1 + 1 + datalen + 1);
 }
