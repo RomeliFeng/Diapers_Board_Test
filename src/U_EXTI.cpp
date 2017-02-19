@@ -1,7 +1,7 @@
 /*
  * U_EXTI.cpp
  *
- *  Created on: 2017Äê1ÔÂ7ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½7ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -85,67 +85,67 @@ void U_EXTIClass::NVICInit() {
 
 extern "C" void EXTI_IRQHandler(void) {
 	if (EXTI_GetITStatus(EXTI_Line0)) {
-		FlowUpdata(FlowCh_1);
+		FlowUpdata (FlowCh_0);
 		EXTI_ClearITPendingBit(EXTI_Line0);
 	}
 	if (EXTI_GetITStatus(EXTI_Line1)) {
-		FlowUpdata(FlowCh_2);
+		FlowUpdata(FlowCh_1);
 		EXTI_ClearITPendingBit(EXTI_Line1);
 	}
 	if (EXTI_GetITStatus(EXTI_Line2)) {
-		FlowUpdata(FlowCh_3);
+		FlowUpdata(FlowCh_2);
 		EXTI_ClearITPendingBit(EXTI_Line2);
 	}
 	if (EXTI_GetITStatus(EXTI_Line3)) {
-		FlowUpdata(FlowCh_4);
+		FlowUpdata(FlowCh_3);
 		EXTI_ClearITPendingBit(EXTI_Line3);
 	}
 	if (EXTI_GetITStatus(EXTI_Line4)) {
-		FlowUpdata(FlowCh_5);
+		FlowUpdata(FlowCh_4);
 		EXTI_ClearITPendingBit(EXTI_Line4);
 	}
 	if (EXTI_GetITStatus(EXTI_Line5)) {
-		FlowUpdata(FlowCh_6);
+		FlowUpdata(FlowCh_5);
 		EXTI_ClearITPendingBit(EXTI_Line5);
 	}
 	if (EXTI_GetITStatus(EXTI_Line6)) {
-		FlowUpdata(FlowCh_7);
+		FlowUpdata(FlowCh_6);
 		EXTI_ClearITPendingBit(EXTI_Line6);
 	}
 	if (EXTI_GetITStatus(EXTI_Line7)) {
-		FlowUpdata(FlowCh_8);
+		FlowUpdata(FlowCh_7);
 		EXTI_ClearITPendingBit(EXTI_Line7);
 	}
 	if (EXTI_GetITStatus(EXTI_Line8)) {
-		LimitUpdata(LimitCh_1);
+		LimitUpdata(LimitCh_0);
 		EXTI_ClearITPendingBit(EXTI_Line8);
 	}
 	if (EXTI_GetITStatus(EXTI_Line9)) {
-		LimitUpdata(LimitCh_2);
+		LimitUpdata(LimitCh_1);
 		EXTI_ClearITPendingBit(EXTI_Line9);
 	}
 	if (EXTI_GetITStatus(EXTI_Line10)) {
-		LimitUpdata(LimitCh_3);
+		LimitUpdata(LimitCh_2);
 		EXTI_ClearITPendingBit(EXTI_Line10);
 	}
 	if (EXTI_GetITStatus(EXTI_Line11)) {
-		LimitUpdata(LimitCh_4);
+		LimitUpdata(LimitCh_3);
 		EXTI_ClearITPendingBit(EXTI_Line11);
 	}
 	if (EXTI_GetITStatus(EXTI_Line12)) {
-		LimitUpdata(LimitCh_5);
+		LimitUpdata(LimitCh_4);
 		EXTI_ClearITPendingBit(EXTI_Line12);
 	}
 	if (EXTI_GetITStatus(EXTI_Line13)) {
-		LimitUpdata(LimitCh_6);
+		LimitUpdata(LimitCh_5);
 		EXTI_ClearITPendingBit(EXTI_Line13);
 	}
 	if (EXTI_GetITStatus(EXTI_Line14)) {
-		LimitUpdata(LimitCh_7);
+		LimitUpdata(LimitCh_6);
 		EXTI_ClearITPendingBit(EXTI_Line14);
 	}
 	if (EXTI_GetITStatus(EXTI_Line15)) {
-		LimitUpdata(LimitCh_8);
+		LimitUpdata(LimitCh_7);
 		EXTI_ClearITPendingBit(EXTI_Line15);
 	}
 }

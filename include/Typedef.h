@@ -1,12 +1,28 @@
 /*
  * Typedef.h
  *
- *  Created on: 2017Äê1ÔÂ8ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½8ï¿½ï¿½
  *      Author: Romeli
  */
 
 #ifndef TYPEDEF_H_
 #define TYPEDEF_H_
+
+typedef struct _Bit_Typedef {
+	uint8_t bit0 :1;
+	uint8_t bit1 :1;
+	uint8_t bit2 :1;
+	uint8_t bit3 :1;
+	uint8_t bit4 :1;
+	uint8_t bit5 :1;
+	uint8_t bit6 :1;
+	uint8_t bit7 :1;
+} Bit_Typedef;
+
+typedef union _BytetoBit_Typedef {
+	uint8_t byte;
+	Bit_Typedef bit;
+} BytetoBit_Typedef;
 
 typedef union _WordtoByte_Typedef {
 	uint8_t byte[2];

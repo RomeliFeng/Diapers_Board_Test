@@ -35,7 +35,6 @@ const uint8_t InitBuf[] = { 0xff, 0xff, 0x40, 0x00, 0x40 };
 
 int main(int argc, char* argv[]) {
 	__enable_irq();
-	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x2000);
 
 	Serial.begin(1024000);
 	Delay_Init(50);
@@ -66,6 +65,9 @@ int main(int argc, char* argv[]) {
 				break;
 			case PC_Setting_Mask:
 				PC_Setting(&p_buf);
+				break;
+			case PC_Special_Mask:
+				PC_Special(&p_buf);
 				break;
 			default:
 				break;

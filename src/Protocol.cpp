@@ -56,11 +56,7 @@ void Serial_Event() {
 	default:
 		break;
 	}
-
-	if ((P_ReceiveBuf.pc & PC_Mask) == PC_Special_Mask) {
-		PC_Special(&P_ReceiveBuf);
-		P_ReceiveFlag = false; //清零收到新的指令标志
-	}
+	Serial.flush();
 }
 
 void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {

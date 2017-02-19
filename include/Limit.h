@@ -1,7 +1,7 @@
 /*
  * Limit.h
  *
- *  Created on: 2017Äê1ÔÂ7ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½7ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -10,17 +10,17 @@
 
 #include "cmsis_device.h"
 
-extern uint8_t LimitData;
+extern BytetoBit_Typedef LimitData;
 
 typedef enum _LimitCh_Typedef {
-	LimitCh_1 = 0x01,
-	LimitCh_2 = 0x02,
-	LimitCh_3 = 0x04,
-	LimitCh_4 = 0x08,
-	LimitCh_5 = 0x10,
-	LimitCh_6 = 0x20,
-	LimitCh_7 = 0x40,
-	LimitCh_8 = 0x80
+	LimitCh_0,
+	LimitCh_1,
+	LimitCh_2,
+	LimitCh_3,
+	LimitCh_4,
+	LimitCh_5,
+	LimitCh_6,
+	LimitCh_7
 } LimitCh_Typedef;
 
 void LimitUpdata(LimitCh_Typedef ch);

@@ -102,6 +102,13 @@ void PC_Setting(P_Buf_Typedef *p_buf) {
 }
 
 void PC_Special(P_Buf_Typedef *p_buf) {
+	uint16_t i = 1000;
+	while (Serial.checkBusy()) {
+		i--;
+		if (i == 0) {
+			break;
+		}
+	}
 	switch (p_buf->pc) {
 	case PC_Special_Reset:
 		Special_Reset();
@@ -154,13 +161,15 @@ void Check_Flow(P_Buf_Typedef *p_buf) {
 }
 
 void Check_Limit() {
-	Protocol_Format(PC_Post_Complete, 1, PC_Check_Limit, &LimitData, &SendBuf);
+	Protocol_Format(PC_Post_Complete, 1, PC_Check_Limit, &LimitData.byte,
+			&SendBuf);
 	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Water() {
 	Water.RefreshData();
-	Protocol_Format(PC_Post_Complete, 1, PC_Check_Water, &WaterData, &SendBuf);
+	Protocol_Format(PC_Post_Complete, 1, PC_Check_Water, &WaterData.byte,
+			&SendBuf);
 	Serial.print(SendBuf.data, SendBuf.len);
 }
 
@@ -273,7 +282,7 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 
 	uint32_t timelast = millis();
 	while (millis() - timelast < 10000000) { //15�볬ʱ
-		if ((LimitData & p_buf->data[1]) == p_buf->data[1]) {
+		if ((LimitData.byte & p_buf->data[1]) == p_buf->data[1]) {
 			break;
 		}
 	}
@@ -293,7 +302,7 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 
 	uint8_t data[2];
 	data[0] = PowDevStatus.byte[1];
-	data[1] = LimitData;
+	data[1] = LimitData.byte;
 
 	Protocol_Format(PC_Post_Complete, 2, PC_AutoContrl_Motor_With_Limit, data,
 			&SendBuf);
@@ -346,7 +355,7 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 					StepperDIR_Backward : StepperDIR_Forward;
 	Stepper.SetDIR(ch, dir);
 	uint32_t timelast = millis();
-	while ((LimitData & p_buf->data[1]) != p_buf->data[1]) {
+	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
 		Stepper.MoveWithStep(ch, 1);
 		if (millis() - timelast > 10000000) {
 			break;
@@ -354,7 +363,7 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 	}
 
 	Protocol_Format(PC_Post_Complete, 1, PC_AutoContrl_Stepper_With_Limit,
-			&LimitData, &SendBuf);
+			&LimitData.byte, &SendBuf);
 	Serial.print(SendBuf.data, SendBuf.len);
 }
 
@@ -372,6 +381,7 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 
 	uint32_t timelast = millis();
 	while (!AutoContrl_Stepper_With_Presure_Condition(p_buf->data[1], pre.word)) {
+		Stepper.MoveOneStep(ch);
 		if (millis() - timelast > 60000) {
 			break;
 		}

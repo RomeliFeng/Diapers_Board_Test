@@ -1,14 +1,14 @@
 /*
  * PowDev.cpp
  *
- *  Created on: 2017Äê1ÔÂ3ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½3ï¿½ï¿½
  *      Author: Romeli
  */
 
 #include "PowDev.h"
 #include "HC595.h"
 
-volatile WordtoByte_Typedef PowDevStatus = { 0x0000 };
+volatile WordtoByte_Typedef PowDevStatus = { 0 };
 
 #define DS_PIN GPIO_Pin_6
 #define OE_PIN GPIO_Pin_7
@@ -19,13 +19,13 @@ HC595Class HC595_PowDev = HC595Class(GPIOC, DS_PIN, OE_PIN, STCP_PIN, SHCP_PIN);
 PowDevClass PowDev;
 
 void PowDevClass::Valve(uint8_t status) {
-	PowDevStatus.byte[0] = 0; //Çå¿ÕµÍ°ËÎ»£¬¹Ø±ÕËùÓÐµç´Å·§
-	PowDevStatus.byte[0] = status; //µ÷ÕûÎªÉèÖÃ×´Ì¬
+	PowDevStatus.byte[0] = 0; //ï¿½ï¿½ÕµÍ°ï¿½Î»ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ï¿½Ðµï¿½Å·ï¿½
+	PowDevStatus.byte[0] = status; //ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½×´Ì¬
 	HC595_PowDev.Write(PowDevStatus.word);
 }
 
 void PowDevClass::Valve(ValveCh_Typedef ch, FunctionalState NewState) {
-	PowDevStatus.byte[0] &= ~ch; //¹Ø±ÕÒªÉèÖÃµÄµç´Å·§
+	PowDevStatus.byte[0] &= ~ch; //ï¿½Ø±ï¿½Òªï¿½ï¿½ï¿½ÃµÄµï¿½Å·ï¿½
 	if (NewState == ENABLE) {
 		PowDevStatus.byte[0] |= ch;
 	}
@@ -33,13 +33,13 @@ void PowDevClass::Valve(ValveCh_Typedef ch, FunctionalState NewState) {
 }
 
 void PowDevClass::Motor(uint8_t status) {
-	PowDevStatus.byte[1] = 0; //Çå¿Õ¸ß°ËÎ»
+	PowDevStatus.byte[1] = 0; //ï¿½ï¿½Õ¸ß°ï¿½Î»
 	PowDevStatus.byte[1] = status;
 	HC595_PowDev.Write(PowDevStatus.word);
 }
 
 void PowDevClass::Motor(MotorCh_Typedef ch, uint8_t state) {
-	PowDevStatus.byte[1] &= ~(0x03 << ch); //Çå¿ÕÉèÖÃÎ»
+	PowDevStatus.byte[1] &= ~(0x03 << ch); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»
 	PowDevStatus.byte[1] |= state << ch;
 	HC595_PowDev.Write(PowDevStatus.word);
 }

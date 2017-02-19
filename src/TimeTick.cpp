@@ -30,7 +30,7 @@ void TimeTickClass::NVICInit() {
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 6;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 7;
 	NVIC_Init(&NVIC_InitStructure);
 
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);

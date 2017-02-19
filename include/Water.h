@@ -1,7 +1,7 @@
 /*
  * Water.h
  *
- *  Created on: 2016Äê12ÔÂ24ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½24ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -16,6 +16,6 @@ public:
 };
 
 extern WaterClass Water;
-extern uint8_t WaterData;
+extern BytetoBit_Typedef WaterData;
 
 #endif /* WATER_H_ */

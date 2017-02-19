@@ -1,7 +1,7 @@
 /*
  * Analog.cpp
  *
- *  Created on: 2016Äê12ÔÂ28ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½28ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -29,8 +29,8 @@
 #define PWM_Period 18000
 #define PWM_Duty 9000
 
-#define NTCCom 1.1414 //ÈÈÃôµç×èÄÚ×è²¹³¥Öµ ´ËÖµÖ»ÔÚ1.5Cycle²ÉÑùÊ±ÓÐÐ§
-#define HRCom 1.414 //HR202ÐÅºÅÄÚ×è²¹³¥
+#define NTCCom 1.1414 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è²¹ï¿½ï¿½Öµ ï¿½ï¿½ÖµÖ»ï¿½ï¿½1.5Cycleï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ð§
+#define HRCom 1.414 //HR202ï¿½Åºï¿½ï¿½ï¿½ï¿½è²¹ï¿½ï¿½
 
 volatile static uint16_t Status_Now = 0x0000;
 
@@ -96,7 +96,7 @@ const uint16_t AnalogChAdd[16] = { 0x0000, 0x0010, 0x0008, 0x0018, 0x0004,
 		0x0014, 0x000c, 0x001c, 0x0002, 0x0012, 0x000a, 0x001a, 0x0006, 0x0016,
 		0x000e, 0x001e };
 
-/*ÉèÖÃÐÅºÅÉú³ÉµÄÊ±»ùºÍÍ¬²½²ÉÑùµÄÊ±»ú*/
+/*ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½Éµï¿½Ê±ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½*/
 AnalogClass::AnalogClass() {
 	GPIOInit();
 
@@ -113,38 +113,38 @@ void AnalogClass::GPIOInit() {
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = SAM_Pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
-/*¿ØÖÆHC595ÇÐ»»°å¿¨*/
+/*ï¿½ï¿½ï¿½ï¿½HC595ï¿½Ð»ï¿½ï¿½å¿¨*/
 void AnalogClass::SelectBd(AnalogBd_Typedef bo) {
-	Status_Now &= 0x001f; //Çå³ý°åÑ¡Ôñ
+	Status_Now &= 0x001f; //ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
 	Status_Now |= AnalogBdAdd[bo];
 	HC595_Analog.Write(Status_Now);
 }
 
-/*¿ØÖÆHC595ÇÐ»»Í¨µÀ*/
+/*ï¿½ï¿½ï¿½ï¿½HC595ï¿½Ð»ï¿½Í¨ï¿½ï¿½*/
 void AnalogClass::SelectCh(AnalogCh_Typedef ch) {
-	Status_Now &= ~(0x001f); //Çå³ýÍ¨µÀÑ¡Ôñ
+	Status_Now &= ~(0x001f); //ï¿½ï¿½ï¿½Í¨ï¿½ï¿½Ñ¡ï¿½ï¿½
 	Status_Now |= AnalogChAdd[ch];
 	HC595_Analog.Write(Status_Now);
 
 }
 
-/*ÇÐ»»Í¨µÀ£¬²¢µÈ´ýÇÐ»»Íê³É£¨»ùÓÚTIM2 PeriodÖµ½øÐÐ¼ÆÊ±£©*/
+/*ï¿½Ð»ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½Ð»ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½TIM2 PeriodÖµï¿½ï¿½ï¿½Ð¼ï¿½Ê±ï¿½ï¿½*/
 void AnalogClass::SelectCh(AnalogCh_Typedef ch, uint16_t us) {
 	uint16_t Count, usCount;
-	//µÈ´ýÊ±¼ä= ÄÚºËÊ±ÖÓÃ¿usÕ¼ÓÃµÄÖÜÆÚÊý/TIM2·ÖÆµÊý*µÈ´ýus
+	//ï¿½È´ï¿½Ê±ï¿½ï¿½= ï¿½Úºï¿½Ê±ï¿½ï¿½Ã¿usÕ¼ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/TIM2ï¿½ï¿½Æµï¿½ï¿½*ï¿½È´ï¿½us
 	usCount = SystemCoreClock / 1000000 / (TIM2->PSC + 1) * us;
 	SelectCh(ch);
-	// TIM2ÖÜÆÚ 18000 1¸öÖÜÆÚ1ms
+	// TIM2ï¿½ï¿½ï¿½ï¿½ 18000 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ms
 	Count = TIM2->CNT;
-	if (Count + usCount < TIM2->ARR) //ÅÐ¶ÏÊÇ·ñ»áÒç³ö
+	if (Count + usCount < TIM2->ARR) //ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½
 		while (TIM2->CNT - Count < usCount)
-			//²»»áÒç³ö
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			;
 	else {
 		while ((TIM2->ARR - Count + TIM2->CNT) < usCount)
@@ -154,44 +154,44 @@ void AnalogClass::SelectCh(AnalogCh_Typedef ch, uint16_t us) {
 
 void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 	SelectBd(bo);
-//ÅÐ¶Ï°å¿¨ÊÇ·ñ´æÔÚ£¬²»´æÔÚÊý¾ÝÈ«²¿Ìî³äÎª0xffffÍË³ö
-	// Í¬²½ÇÐ»»µ½°å¿¨´æÔÚÍ¨µÀ
+//ï¿½Ð¶Ï°å¿¨ï¿½Ç·ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½Îª0xffffï¿½Ë³ï¿½
+	// Í¬ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½å¿¨ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
 	SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2);
 	U_ADC1.RefreshData(ADC_Channel_0, ADC_SampleTime_1Cycles5);
-	if (U_ADC1Data > 100) { //°å¿¨Î´Ñ¡ÖÐ
+	if (U_ADC1Data > 100) { //ï¿½å¿¨Î´Ñ¡ï¿½ï¿½
 		for (int i = 0; i < AnalogCh_Size; ++i) {
 			AnalogData[i].word = 0xffff;
 		}
 		return;
 	}
-	AnalogData[AnalogCh_Exsit].word = 0; //°å¿¨´æÔÚ
+	AnalogData[AnalogCh_Exsit].word = 0; //ï¿½å¿¨ï¿½ï¿½ï¿½ï¿½
 
-	/*¿ªÊ¼²ÉÑùHR202ÐÅºÅ£¬ÐèÒªÍ¬²½²ÉÑù*/
+	/*ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½HR202ï¿½ÅºÅ£ï¿½ï¿½ï¿½ÒªÍ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 	uint8_t index = 0;
 	uint8_t index_off;
-	while (index < (AnalogCh_NTC)) { //²ÉÑùÊý¾Ý
+	while (index < (AnalogCh_NTC)) { //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		index_off = index;
 		SampleSync();
-		while (index - index_off < 1) { //  1¸öÖÜÆÚ²É¼¯N¸öÊý¾Ý
-			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //Í¬²½ÇÐ»»µ½°å¿¨´æÔÚÍ¨µÀ
-			U_ADC1.RefreshData(); //²É¼¯Êý¾Ý
-			Analog.SelectCh((AnalogCh_Typedef) index, 2); //ÇÐ»»µ½²É¼¯Í¨µÀ
+		while (index - index_off < 1) { //  1ï¿½ï¿½ï¿½ï¿½ï¿½Ú²É¼ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //Í¬ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½å¿¨ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
+			U_ADC1.RefreshData(); //ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½
+			Analog.SelectCh((AnalogCh_Typedef) index, 2); //ï¿½Ð»ï¿½ï¿½ï¿½ï¿½É¼ï¿½Í¨ï¿½ï¿½
 			U_ADC1.RefreshData();
-			AnalogData[index].word = U_ADC1Data * HRCom; //Êµ¼ÊÖµ=²ÉÑùÖµ*²¹³¥Öµ
+			AnalogData[index].word = U_ADC1Data * HRCom; //Êµï¿½ï¿½Öµ=ï¿½ï¿½ï¿½ï¿½Öµ*ï¿½ï¿½ï¿½ï¿½Öµ
 			if (AnalogData[index].word > 4095)
 				AnalogData[index].word = 4095;
 			index++;
 		}
 	}
-	/*¿ªÊ¼²ÉÑùNTCÐÅºÅ£¬ÐèÒªÍ¬²½²ÉÑù*/
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //Í¬²½ÇÐ»»µ½°å¿¨´æÔÚÍ¨µÀ
+	/*ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½NTCï¿½ÅºÅ£ï¿½ï¿½ï¿½ÒªÍ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //Í¬ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½å¿¨ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
 	U_ADC1.RefreshData();
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 2); //ÇÐ»»µ½²É¼¯Í¨µÀ
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 2); //ï¿½Ð»ï¿½ï¿½ï¿½ï¿½É¼ï¿½Í¨ï¿½ï¿½
 	U_ADC1.RefreshData();
-	AnalogData[AnalogCh_NTC].word = U_ADC1Data * NTCCom; //Êµ¼ÊÖµ=²ÉÑùÖµ*²¹³¥Öµ
+	AnalogData[AnalogCh_NTC].word = U_ADC1Data * NTCCom; //Êµï¿½ï¿½Öµ=ï¿½ï¿½ï¿½ï¿½Öµ*ï¿½ï¿½ï¿½ï¿½Öµ
 }
 
-/*ÀûÓÃTIM2µÄOC1½øÐÐ¼ÆÊ±£¬ÔÚCC1ÖÐ¶ÏÖÃÎ»±êÖ¾*/
+/*ï¿½ï¿½ï¿½ï¿½TIM2ï¿½ï¿½OC1ï¿½ï¿½ï¿½Ð¼ï¿½Ê±ï¿½ï¿½ï¿½ï¿½CC1ï¿½Ð¶ï¿½ï¿½ï¿½Î»ï¿½ï¿½Ö¾*/
 void AnalogClass::SampleSync() {
 	Analog_SamTrig = false;
 	PWM.SwitchInterrupt(PWMCh_1, ENABLE);
@@ -199,7 +199,7 @@ void AnalogClass::SampleSync() {
 		;
 }
 
-/*CC1ÖÐ¶Ï·þÎñ£¬ÎªÍ¬²½²ÉÑù·þÎñ*/
+/*CC1ï¿½Ð¶Ï·ï¿½ï¿½ï¿½ÎªÍ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
 void U_TIM2_CC1_ISR() {
 	PWM.SwitchInterrupt(PWMCh_1, DISABLE);
 	Analog_SamTrig = true;

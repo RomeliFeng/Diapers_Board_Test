@@ -1,7 +1,7 @@
 /*
  * Flow.h
  *
- *  Created on: 2017Äê1ÔÂ8ÈÕ
+ *  Created on: 2017ï¿½ï¿½1ï¿½ï¿½8ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -12,14 +12,14 @@
 #include "Typedef.h"
 
 typedef enum _FlowCh_Typedef {
-	FlowCh_1 = 0,
+	FlowCh_0,
+	FlowCh_1,
 	FlowCh_2,
 	FlowCh_3,
 	FlowCh_4,
 	FlowCh_5,
 	FlowCh_6,
-	FlowCh_7,
-	FlowCh_8
+	FlowCh_7
 } FlowCh_Typedef;
 
 void FlowClear(FlowCh_Typedef ch);

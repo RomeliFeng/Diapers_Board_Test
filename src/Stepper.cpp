@@ -1,7 +1,7 @@
 /*
  * Stepper.cpp
  *
- *  Created on: 2016Äê12ÔÂ25ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½25ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -117,7 +117,7 @@ void StepperClass::Unlock(StepperCh_Typedef ch) {
 
 void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
 	if ((StepperLimit[ch] != 0)
-			&& ((LimitData & StepperLimit[ch]) == StepperLimit[ch])) {
+			&& ((LimitData.byte & StepperLimit[ch]) == StepperLimit[ch])) {
 		return;
 	}
 	switch (ch) {

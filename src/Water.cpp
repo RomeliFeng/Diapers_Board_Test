@@ -1,7 +1,7 @@
 /*
  * Water.cpp
  *
- *  Created on: 2016Äê12ÔÂ24ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½24ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -10,11 +10,11 @@
 
 WaterClass Water;
 
-uint8_t WaterData = 0;
+BytetoBit_Typedef WaterData;
 
 HC165Class HC165_Water = HC165Class(GPIOB, GPIO_Pin_8, GPIO_Pin_7, GPIO_Pin_6,
 GPIO_Pin_5);
 
 void WaterClass::RefreshData() {
-	WaterData = HC165_Water.Read(8);
+	WaterData.byte = HC165_Water.Read(8);
 }
