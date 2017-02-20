@@ -26,7 +26,7 @@ void TimeTickClass::TIMInit() {
 void TimeTickClass::NVICInit() {
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-	NVIC_SetPriorityGrouping(NVIC_PriorityGroup_1);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;

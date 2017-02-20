@@ -226,7 +226,7 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < 10000000) { //超时时间
+	while (millis() - timelast < 30000) { //超时时间30S
 		if (FlowData[ch].word >= flowlimit.word) {
 			break;
 		}
@@ -281,7 +281,7 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < 10000000) { //15�볬ʱ
+	while (millis() - timelast < 30000) { //30S
 		if ((LimitData.byte & p_buf->data[1]) == p_buf->data[1]) {
 			break;
 		}
@@ -357,7 +357,7 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 	uint32_t timelast = millis();
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
 		Stepper.MoveWithStep(ch, 1);
-		if (millis() - timelast > 10000000) {
+		if (millis() - timelast > 120000) {//2min
 			break;
 		}
 	}
@@ -382,7 +382,7 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 	uint32_t timelast = millis();
 	while (!AutoContrl_Stepper_With_Presure_Condition(p_buf->data[1], pre.word)) {
 		Stepper.MoveOneStep(ch);
-		if (millis() - timelast > 60000) {
+		if (millis() - timelast > 120000) {
 			break;
 		}
 	}
@@ -418,7 +418,7 @@ bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet,
 		preavg += PressureData[4].word;
 	}
 	preavg /= prenum;
-	if (prenum >= pre) {
+	if (preavg >= pre) {
 		return true;
 	}
 	return false;
