@@ -5,7 +5,7 @@
 
 #include "main.h"
 
-const uint8_t InitBuf[] = { 0xff, 0xff, 0x40, 0x00, 0x40 };
+const uint8_t InitBuf[] = { 0xff, 0xff, 0xc0, 0x00, 0xc4 };
 
 int main(int argc, char* argv[]) {
 	__enable_irq();
@@ -62,7 +62,7 @@ void TimeTickISR() {
 		}
 		if ((p_buf.pc & PC_Mask) == PC_Special_Mask) {
 			PC_Special(&p_buf);
-		} else if ((TimeTick.ThreadStart)
+		} else if (TimeTick.ThreadStart
 				&& (((p_buf.pc & PC_Mask) == PC_Check_Mask)
 						&& (p_buf.pc != PC_Check_Analog))) {
 			//查询指令，并且不是湿度监测指令

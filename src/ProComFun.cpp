@@ -356,8 +356,8 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 	Stepper.SetDIR(ch, dir);
 	uint32_t timelast = millis();
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
-		Stepper.MoveWithStep(ch, 1);
-		if (millis() - timelast > 120000) {//2min
+		Stepper.MoveOneStep(ch);
+		if (millis() - timelast > 120000) { //2min
 			break;
 		}
 	}

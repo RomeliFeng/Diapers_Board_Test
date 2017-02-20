@@ -10,7 +10,11 @@
 
 #include "cmsis_device.h"
 
-void MotorMoveProtect();
-void StepperMoveProtect();
+#include "PowDev.h"
+#include "Limit.h"
+#include "Stepper.h"
+
+bool MotorMoveProtect();
+bool StepperMoveProtect(StepperDIR_Typedef dir);
 
 #endif /* PROTECT_H_ */

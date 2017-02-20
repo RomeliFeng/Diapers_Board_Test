@@ -28,21 +28,20 @@
 StepperClass Stepper;
 
 TwoWordtoByteSigned_Typedef StepperPosition[2];
-StepperDIR_Typedef StepperDIR;
+StepperDIR_Typedef StepperDIR[2];
 uint8_t StepperLimit[2];
 
 uint16_t StepperSpeed = STEPPERSPEED;
 
 void StepperClass::SetDIR(StepperCh_Typedef ch, StepperDIR_Typedef dir) {
+	StepperDIR[ch] = dir;
 	switch (ch) {
 	case StepperCh_1:
 		switch (dir) {
 		case StepperDIR_Forward:
-			StepperDIR = StepperDIR_Forward;
 			DIR1_RESET;
 			break;
 		case StepperDIR_Backward:
-			StepperDIR = StepperDIR_Backward;
 			DIR1_SET;
 			break;
 		default:
@@ -52,11 +51,9 @@ void StepperClass::SetDIR(StepperCh_Typedef ch, StepperDIR_Typedef dir) {
 	case StepperCh_2:
 		switch (dir) {
 		case StepperDIR_Forward:
-			StepperDIR = StepperDIR_Forward;
 			DIR2_RESET;
 			break;
 		case StepperDIR_Backward:
-			StepperDIR = StepperDIR_Backward;
 			DIR2_SET;
 			break;
 		default:
@@ -123,24 +120,24 @@ void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
 	switch (ch) {
 	case StepperCh_1:
 		PUL1_RESET;
-		Delay_us (StepperSpeed);
+		Delay_us(StepperSpeed);
 		PUL1_SET;
-		Delay_us (StepperSpeed);
-		if (StepperDIR == StepperDIR_Forward) {
-			++StepperPosition[0].twoword;
+		Delay_us(StepperSpeed);
+		if (StepperDIR[ch] == StepperDIR_Forward) {
+			++StepperPosition[ch].twoword;
 		} else {
-			--StepperPosition[0].twoword;
+			--StepperPosition[ch].twoword;
 		}
 		break;
 	case StepperCh_2:
 		PUL2_RESET;
-		Delay_us (StepperSpeed);
+		Delay_us(StepperSpeed);
 		PUL2_SET;
-		Delay_us (StepperSpeed);
-		if (StepperDIR == StepperDIR_Forward) {
-			++StepperPosition[1].twoword;
+		Delay_us(StepperSpeed);
+		if (StepperDIR[ch] == StepperDIR_Forward) {
+			++StepperPosition[ch].twoword;
 		} else {
-			--StepperPosition[1].twoword;
+			--StepperPosition[ch].twoword;
 		}
 		break;
 	}

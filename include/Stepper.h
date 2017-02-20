@@ -1,7 +1,7 @@
 /*
  * Stepper.h
  *
- *  Created on: 2016Äê12ÔÂ25ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½25ï¿½ï¿½
  *      Author: Romeli
  *      PinMap: |PUL----PA12|
  *      		|DIR----PA11|
@@ -41,5 +41,6 @@ private:
 
 extern StepperClass Stepper;
 extern TwoWordtoByteSigned_Typedef StepperPosition[2];
+extern StepperDIR_Typedef StepperDIR[2];
 extern uint8_t StepperLimit[2];
 #endif /* MOTOR_H_ */
