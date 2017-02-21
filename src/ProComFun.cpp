@@ -102,10 +102,9 @@ void PC_Setting(P_Buf_Typedef *p_buf) {
 }
 
 void PC_Special(P_Buf_Typedef *p_buf) {
-	uint16_t i = 1000;
+	uint16_t i = 1000;//等待收到指令的回复指令发送完成
 	while (Serial.checkBusy()) {
-		i--;
-		if (i == 0) {
+		if (i-- == 0) {
 			break;
 		}
 	}

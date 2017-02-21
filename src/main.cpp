@@ -5,9 +5,10 @@
 
 #include "main.h"
 
-const uint8_t InitBuf[] = { 0xff, 0xff, 0xc0, 0x00, 0xc4 };
+const uint8_t InitBuf[] = { 0xff, 0xff, 0xc4, 0x00, 0xc4 };
 
 int main(int argc, char* argv[]) {
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0);
 	__enable_irq();
 
 	Serial.begin(1024000);
