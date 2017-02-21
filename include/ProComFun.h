@@ -20,7 +20,6 @@
 #include "Pressure.h"
 #include "Protocol.h"
 #include "Stepper.h"
-#include "U_EXTI.h"
 #include "Water.h"
 
 void PC_Check(P_Buf_Typedef *p_buf);

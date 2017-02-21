@@ -12,17 +12,16 @@
 
 extern BytetoBit_Typedef LimitData;
 
-typedef enum _LimitCh_Typedef {
-	LimitCh_0,
-	LimitCh_1,
-	LimitCh_2,
-	LimitCh_3,
-	LimitCh_4,
-	LimitCh_5,
-	LimitCh_6,
-	LimitCh_7
-} LimitCh_Typedef;
+class LimitClass {
+public:
+	LimitClass() {
+		GPIOInit();
+	}
+	void RefreshData();
+private:
+	void GPIOInit();
+};
 
-void LimitUpdata(LimitCh_Typedef ch);
+extern LimitClass Limit;
 
 #endif /* LIMIT_H_ */

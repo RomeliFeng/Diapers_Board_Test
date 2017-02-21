@@ -17,32 +17,34 @@ int main(int argc, char* argv[]) {
 	Serial.print((uint8_t*) InitBuf, 5);
 	while (1) {
 		if (P_ReceiveFlag) {
-			P_Buf_Typedef p_buf;
 			//从已接受的指令缓冲中搬移到执行缓冲
-			p_buf.pc = P_ReceiveBuf.pc;
+			P_RunningBuf.pc = P_ReceiveBuf.pc;
 			for (uint8_t i = 0; i < P_ReceiveBuf.len; ++i) {
-				p_buf.data[i] = P_ReceiveBuf.data[i];
+				P_RunningBuf.data[i] = P_ReceiveBuf.data[i];
 			}
 			P_ReceiveFlag = false; //清零新指令标准
 
 			P_RunningFlag = true; //置位指令执行中标志
-			switch (p_buf.pc & PC_Mask) { //根据Mask选择大类
+
+			switch (P_RunningBuf.pc & PC_Mask) { //根据Mask选择大类
 			case PC_Check_Mask:
-				PC_Check(&p_buf);
+				PC_Check(&P_RunningBuf);
 				break;
 			case PC_Contrl_Mask:
-				PC_Contrl(&p_buf);
+				PC_Contrl(&P_RunningBuf);
 				break;
 			case PC_AutoContrl_Mask:
 				TimeTick.ThreadStart = true;
-				PC_AutoContrl(&p_buf); //自动执行过程中开启巡查
+				PC_LastAuto = P_RunningBuf.pc; //记录正在执行的自动指令
+				PC_AutoContrl(&P_RunningBuf); //自动执行过程中开启巡查
+				PC_LastAuto = PC_None;		//清除现在正在执行的自动指令
 				TimeTick.ThreadStart = false;
 				break;
 			case PC_Setting_Mask:
-				PC_Setting(&p_buf);
+				PC_Setting(&P_RunningBuf);
 				break;
 			case PC_Special_Mask:
-				PC_Special(&p_buf);
+				PC_Special(&P_RunningBuf);
 				break;
 			default:
 				break;

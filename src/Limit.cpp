@@ -16,44 +16,23 @@
 #define LIM6_PIN GPIO_Pin_14
 #define LIM7_PIN GPIO_Pin_15
 
-#define Lim0_Read (GPIOD->IDR & LIM0_PIN) == RESET ? 1 : 0
-#define Lim1_Read (GPIOD->IDR & LIM1_PIN) == RESET ? 1 : 0
-#define Lim2_Read (GPIOD->IDR & LIM2_PIN) == RESET ? 1 : 0
-#define Lim3_Read (GPIOD->IDR & LIM3_PIN) == RESET ? 1 : 0
-#define Lim4_Read (GPIOD->IDR & LIM4_PIN) == RESET ? 1 : 0
-#define Lim5_Read (GPIOD->IDR & LIM5_PIN) == RESET ? 1 : 0
-#define Lim6_Read (GPIOD->IDR & LIM6_PIN) == RESET ? 1 : 0
-#define Lim7_Read (GPIOD->IDR & LIM7_PIN) == RESET ? 1 : 0
-
 BytetoBit_Typedef LimitData = { 0 };
 
-void LimitUpdata(LimitCh_Typedef ch) {
-	switch (ch) {
-	case LimitCh_0:
-		LimitData.bit.bit0 = Lim0_Read;
-		break;
-	case LimitCh_1:
-		LimitData.bit.bit1 = Lim1_Read;
-		break;
-	case LimitCh_2:
-		LimitData.bit.bit2 = Lim2_Read;
-		break;
-	case LimitCh_3:
-		LimitData.bit.bit3 = Lim3_Read;
-		break;
-	case LimitCh_4:
-		LimitData.bit.bit4 = Lim4_Read;
-		break;
-	case LimitCh_5:
-		LimitData.bit.bit5 = Lim5_Read;
-		break;
-	case LimitCh_6:
-		LimitData.bit.bit6 = Lim6_Read;
-		break;
-	case LimitCh_7:
-		LimitData.bit.bit7 = Lim7_Read;
-		break;
-	default:
-		break;
-	}
+LimitClass Limit;
+
+void LimitClass::RefreshData() {
+	LimitData.byte = ~(uint8_t) (GPIOD->IDR >> 8);
+}
+
+void LimitClass::GPIOInit() {
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+
+	GPIO_InitStructure.GPIO_Pin = LIM0_PIN | LIM1_PIN | LIM2_PIN | LIM3_PIN
+			| LIM4_PIN | LIM5_PIN | LIM6_PIN | LIM7_PIN;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
 }

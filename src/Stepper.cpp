@@ -9,7 +9,7 @@
 #include "Delay.h"
 #include "Limit.h"
 
-#define STEPPERSPEED 50
+#define STEPPERSPEED 100
 
 #define EN1_SET GPIOE->BSRR = GPIO_Pin_4
 #define EN1_RESET GPIOE->BRR = GPIO_Pin_4

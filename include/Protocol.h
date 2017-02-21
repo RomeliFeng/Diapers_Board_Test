@@ -15,7 +15,7 @@ typedef enum _PA_Typedef { //Protocol Analysis
 } PA_Typedef;
 
 typedef enum _PC_Typedef { //Protocol Command
-	PC_None,
+	PC_None = 0xff,
 
 	PC_Mask = 0xe0,
 
@@ -92,6 +92,10 @@ void Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
 
 extern P_Buf_Typedef P_ReceiveBuf;
 extern volatile bool P_ReceiveFlag;
+
+extern P_Buf_Typedef P_RunningBuf;
 extern volatile bool P_RunningFlag;
+
+extern PC_Typedef PC_LastAuto;
 
 #endif /* PROTOCOL_H_ */

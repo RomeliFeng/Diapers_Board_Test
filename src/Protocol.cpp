@@ -16,7 +16,11 @@
 
 P_Buf_Typedef P_ReceiveBuf;
 volatile bool P_ReceiveFlag = false;
+
+P_Buf_Typedef P_RunningBuf;
 volatile bool P_RunningFlag = false;
+
+PC_Typedef PC_LastAuto = PC_None;
 
 void Serial_Event() {
 	PA_Struct_Typedef pa_struct;

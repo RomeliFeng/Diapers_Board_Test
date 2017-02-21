@@ -12,7 +12,7 @@
 #include "Typedef.h"
 
 typedef enum _FlowCh_Typedef {
-	FlowCh_0,
+	FlowCh_0 = 0,
 	FlowCh_1,
 	FlowCh_2,
 	FlowCh_3,
@@ -22,8 +22,22 @@ typedef enum _FlowCh_Typedef {
 	FlowCh_7
 } FlowCh_Typedef;
 
-void FlowClear(FlowCh_Typedef ch);
-void FlowUpdata(FlowCh_Typedef ch);
+class FlowClass {
+public:
+	FlowClass() {
+		GPIOInit();
+		EXTIInit();
+		NVICInit();
+	}
+	void Clear(FlowCh_Typedef ch);
+private:
+	void GPIOInit();
+	void EXTIInit();
+	void NVICInit();
+};
 
+void FlowUpdate(FlowCh_Typedef ch);
 extern WordtoByte_Typedef FlowData[8];
+extern FlowClass Flow;
+
 #endif /* FLOW_H_ */

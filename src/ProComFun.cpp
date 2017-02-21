@@ -160,6 +160,7 @@ void Check_Flow(P_Buf_Typedef *p_buf) {
 }
 
 void Check_Limit() {
+	Limit.RefreshData();
 	Protocol_Format(PC_Post_Complete, 1, PC_Check_Limit, &LimitData.byte,
 			&SendBuf);
 	Serial.print(SendBuf.data, SendBuf.len);
@@ -281,6 +282,7 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 
 	uint32_t timelast = millis();
 	while (millis() - timelast < 30000) { //30S
+		Limit.RefreshData();
 		if ((LimitData.byte & p_buf->data[1]) == p_buf->data[1]) {
 			break;
 		}
@@ -355,6 +357,7 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 	Stepper.SetDIR(ch, dir);
 	uint32_t timelast = millis();
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
+		Limit.RefreshData();
 		Stepper.MoveOneStep(ch);
 		if (millis() - timelast > 120000) { //2min
 			break;
@@ -496,7 +499,9 @@ void Special_Continue() {
 
 }
 void Special_Online() {
-
+	Protocol_Format(PC_Post_Complete, 1, PC_Special_Online,
+			(uint8_t *) &PC_LastAuto, &SendBuf);
+	Serial.print(SendBuf.data, SendBuf.len);
 }
 void Special_Cacel() {
 
