@@ -8,6 +8,7 @@
 #include <Stepper.h>
 #include "Delay.h"
 #include "Limit.h"
+#include "Protect.h"
 
 #define STEPPERSPEED 100
 
@@ -113,34 +114,34 @@ void StepperClass::Unlock(StepperCh_Typedef ch) {
 }
 
 void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
-	if ((StepperLimit[ch].byte != 0)
-			&& ((LimitData.byte & StepperLimit[ch].byte)
-					== StepperLimit[ch].byte)) {
+	if ((StepperLimit[ch].byte != 0) //锁定的极限限位
+	&& ((LimitData.byte & StepperLimit[ch].byte) == StepperLimit[ch].byte)) {
 		return;
 	}
+	if (StepperMoveProtect(ch) == false) //基于Protect.cpp的限位移动保护
+			{
+		return;
+	}
+
 	switch (ch) {
 	case StepperCh_1:
 		PUL1_RESET;
 		Delay_us(StepperSpeed);
 		PUL1_SET;
 		Delay_us(StepperSpeed);
-		if (StepperDIR[ch] == StepperDIR_Forward) {
-			++StepperPosition[ch].twoword;
-		} else {
-			--StepperPosition[ch].twoword;
-		}
+
 		break;
 	case StepperCh_2:
 		PUL2_RESET;
 		Delay_us(StepperSpeed);
 		PUL2_SET;
 		Delay_us(StepperSpeed);
-		if (StepperDIR[ch] == StepperDIR_Forward) {
-			++StepperPosition[ch].twoword;
-		} else {
-			--StepperPosition[ch].twoword;
-		}
 		break;
+	}
+	if (StepperDIR[ch] == StepperDIR_Forward) {
+		++StepperPosition[ch].twoword;
+	} else {
+		--StepperPosition[ch].twoword;
 	}
 }
 
