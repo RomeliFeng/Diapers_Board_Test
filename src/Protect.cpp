@@ -16,16 +16,17 @@ bool MotorMoveProtect() { //判断电机移动操作是否在上限位操作
 }
 
 bool StepperMoveProtect(StepperCh_Typedef ch) {
+	Limit.RefreshData();
 	switch (ch) {
 	case StepperCh_1:
-		switch (StepperDIR[StepperCh_1]) {
+		switch (StepperDIR[ch]) {
 		case StepperDIR_Forward:
-			if (LimitData.bit.bit0 == 2) {
+			if (LimitData.bit.bit0 == 1) {
 				return false;
 			}
 			break;
 		case StepperDIR_Backward:
-			if (LimitData.bit.bit0 == 0) {
+			if (LimitData.bit.bit2 == 1) {
 				return false;
 			}
 			break;

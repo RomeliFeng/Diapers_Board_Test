@@ -10,7 +10,7 @@
 #include "Limit.h"
 #include "Protect.h"
 
-#define STEPPERSPEED 100
+#define STEPPERSPEED 150
 
 #define EN1_SET GPIOE->BSRR = GPIO_Pin_4
 #define EN1_RESET GPIOE->BRR = GPIO_Pin_4
@@ -118,8 +118,7 @@ void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
 	&& ((LimitData.byte & StepperLimit[ch].byte) == StepperLimit[ch].byte)) {
 		return;
 	}
-	if (StepperMoveProtect(ch) == false) //基于Protect.cpp的限位移动保护
-			{
+	if (StepperMoveProtect(ch) == false) {//基于Protect.cpp的限位移动保护
 		return;
 	}
 
