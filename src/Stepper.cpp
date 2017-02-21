@@ -29,7 +29,7 @@ StepperClass Stepper;
 
 TwoWordtoByteSigned_Typedef StepperPosition[2];
 StepperDIR_Typedef StepperDIR[2];
-uint8_t StepperLimit[2];
+BytetoBit_Typedef StepperLimit[2];
 
 uint16_t StepperSpeed = STEPPERSPEED;
 
@@ -113,8 +113,9 @@ void StepperClass::Unlock(StepperCh_Typedef ch) {
 }
 
 void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
-	if ((StepperLimit[ch] != 0)
-			&& ((LimitData.byte & StepperLimit[ch]) == StepperLimit[ch])) {
+	if ((StepperLimit[ch].byte != 0)
+			&& ((LimitData.byte & StepperLimit[ch].byte)
+					== StepperLimit[ch].byte)) {
 		return;
 	}
 	switch (ch) {

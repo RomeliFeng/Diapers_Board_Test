@@ -42,5 +42,5 @@ private:
 extern StepperClass Stepper;
 extern TwoWordtoByteSigned_Typedef StepperPosition[2];
 extern StepperDIR_Typedef StepperDIR[2];
-extern uint8_t StepperLimit[2];
+extern BytetoBit_Typedef StepperLimit[2];
 #endif /* MOTOR_H_ */

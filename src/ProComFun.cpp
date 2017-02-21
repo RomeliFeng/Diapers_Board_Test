@@ -469,7 +469,7 @@ void Setting_SetStepperLimit(P_Buf_Typedef *p_buf) {
 	uint8_t tmp;
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
-	StepperLimit[ch] = p_buf->data[1];
+	StepperLimit[ch].byte = p_buf->data[1];
 	Protocol_Format(PC_Post_Complete, 0, PC_Setting_SetStepperLimit, &tmp,
 			&SendBuf);
 	Serial.print(SendBuf.data, SendBuf.len);
