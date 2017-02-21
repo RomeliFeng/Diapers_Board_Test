@@ -7,6 +7,7 @@
 
 #include "PowDev.h"
 #include "HC595.h"
+#include "Protect.h"
 
 volatile WordtoByte_Typedef PowDevStatus = { 0 };
 
@@ -18,28 +19,40 @@ volatile WordtoByte_Typedef PowDevStatus = { 0 };
 HC595Class HC595_PowDev = HC595Class(GPIOC, DS_PIN, OE_PIN, STCP_PIN, SHCP_PIN);
 PowDevClass PowDev;
 
-void PowDevClass::Valve(uint8_t status) {
-	PowDevStatus.byte[0] = 0; //��յͰ�λ���ر����е�ŷ�
-	PowDevStatus.byte[0] = status; //����Ϊ����״̬
+bool PowDevClass::Valve(uint8_t status) {
+	PowDevStatus.byte[0] = 0;
+	PowDevStatus.byte[0] = status;
 	HC595_PowDev.Write(PowDevStatus.word);
+	return true;
 }
 
-void PowDevClass::Valve(ValveCh_Typedef ch, FunctionalState NewState) {
+bool PowDevClass::Valve(ValveCh_Typedef ch, FunctionalState NewState) {
 	PowDevStatus.byte[0] &= ~ch; //�ر�Ҫ���õĵ�ŷ�
 	if (NewState == ENABLE) {
 		PowDevStatus.byte[0] |= ch;
 	}
 	HC595_PowDev.Write(PowDevStatus.word);
+	return true;
 }
 
-void PowDevClass::Motor(uint8_t status) {
-	PowDevStatus.byte[1] = 0; //��ո߰�λ
-	PowDevStatus.byte[1] = status;
-	HC595_PowDev.Write(PowDevStatus.word);
+bool PowDevClass::Motor(uint8_t status) {
+	if (MotorMoveProtect()) {
+		PowDevStatus.byte[1] = 0; //��ո߰�λ
+		PowDevStatus.byte[1] = status;
+		HC595_PowDev.Write(PowDevStatus.word);
+	} else {
+		return false;
+	}
+	return true;
 }
 
-void PowDevClass::Motor(MotorCh_Typedef ch, uint8_t state) {
-	PowDevStatus.byte[1] &= ~(0x03 << ch); //�������λ
-	PowDevStatus.byte[1] |= state << ch;
-	HC595_PowDev.Write(PowDevStatus.word);
+bool PowDevClass::Motor(MotorCh_Typedef ch, uint8_t ctl) {
+	if (MotorMoveProtect()) {
+		PowDevStatus.byte[1] &= ~(0x03 << ch); //�������λ
+		PowDevStatus.byte[1] |= ctl << ch;
+		HC595_PowDev.Write(PowDevStatus.word);
+	} else {
+		return false;
+	}
+	return true;
 }

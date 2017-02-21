@@ -7,7 +7,7 @@
 
 #include "Protect.h"
 
-bool MotorMoveProtect(uint8_t status) { //判断电机移动操作是否在上限位操作
+bool MotorMoveProtect() { //判断电机移动操作是否在上限位操作
 	if (LimitData.bit.bit0 != 0) {
 		return true;
 	} else {

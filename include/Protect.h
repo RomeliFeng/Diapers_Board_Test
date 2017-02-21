@@ -15,6 +15,6 @@
 #include "Stepper.h"
 
 bool MotorMoveProtect();
-bool StepperMoveProtect(StepperDIR_Typedef dir);
+bool StepperMoveProtect(StepperCh_Typedef ch);
 
 #endif /* PROTECT_H_ */
