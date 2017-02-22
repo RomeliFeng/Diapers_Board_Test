@@ -72,9 +72,8 @@ void TimeTickISR() {
 			PC_Check(&p_buf);
 		} else { //返回忙
 			DataBuf_Typedef sendbuf;
-			Protocol_Format(PC_Post_Busy, p_buf.len, p_buf.pc, p_buf.data,
+			Protocol_Send(PC_Post_Busy, p_buf.len, p_buf.pc, p_buf.data,
 					&sendbuf);
-			Serial.print(sendbuf.data, sendbuf.len);
 		}
 		P_ReceiveFlag = false;
 	}

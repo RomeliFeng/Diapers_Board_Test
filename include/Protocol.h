@@ -87,8 +87,9 @@ typedef struct _P_Buf_Typedef {
 } P_Buf_Typedef;
 
 void Protocol_Analysis(PA_Struct_Typedef *pa_struct);
-void Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
+void Protocol_Send(PC_Typedef com, uint8_t datalen, uint8_t com_get,
 		uint8_t* data, DataBuf_Typedef *sendbuf);
+void Protocol_Send(PC_Typedef com, uint8_t com_get, DataBuf_Typedef *sendbuf);
 
 extern P_Buf_Typedef P_ReceiveBuf;
 extern volatile bool P_ReceiveFlag;

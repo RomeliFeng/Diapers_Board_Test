@@ -31,7 +31,7 @@ void FlowClass::Clear(FlowCh_Typedef ch) {
 void FlowClass::GPIOInit() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
 
 	GPIO_InitStructure.GPIO_Pin = FLOW0_PIN | FLOW1_PIN | FLOW2_PIN | FLOW3_PIN
 			| FLOW4_PIN | FLOW5_PIN | FLOW6_PIN | FLOW7_PIN;

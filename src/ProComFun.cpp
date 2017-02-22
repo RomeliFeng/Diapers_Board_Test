@@ -134,65 +134,56 @@ void PC_Special(P_Buf_Typedef *p_buf) {
 
 void Check_Digital() {
 	Digital.RefreshData();
-	Protocol_Format(PC_Post_Complete, 63, PC_Check_Digital, Digital_Data,
+	Protocol_Send(PC_Post_Complete, 63, PC_Check_Digital, Digital_Data,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Analog(P_Buf_Typedef *p_buf) {
 	Analog.RefreshData((AnalogBd_Typedef) p_buf->data[0]);
-	Protocol_Format(PC_Post_Complete, 28, PC_Check_Analog,
+	Protocol_Send(PC_Post_Complete, 28, PC_Check_Analog,
 			(uint8_t*) AnalogData, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Pressure() {
 	Pressure.RefreshData();
-	Protocol_Format(PC_Post_Complete, 10, PC_Check_Pressure,
+	Protocol_Send(PC_Post_Complete, 10, PC_Check_Pressure,
 			(uint8_t*) PressureData, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Flow(P_Buf_Typedef *p_buf) {
-	Protocol_Format(PC_Post_Complete, 2, PC_Check_Flow,
+	Protocol_Send(PC_Post_Complete, 2, PC_Check_Flow,
 			FlowData[(uint8_t) p_buf->data[0]].byte, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Limit() {
 	Limit.RefreshData();
-	Protocol_Format(PC_Post_Complete, 1, PC_Check_Limit, &LimitData.byte,
+	Protocol_Send(PC_Post_Complete, 1, PC_Check_Limit, &LimitData.byte,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Water() {
 	Water.RefreshData();
-	Protocol_Format(PC_Post_Complete, 1, PC_Check_Water, &WaterData.byte,
+	Protocol_Send(PC_Post_Complete, 1, PC_Check_Water, &WaterData.byte,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Check_Stepper(P_Buf_Typedef *p_buf) {
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
-	Protocol_Format(PC_Post_Complete, 4, PC_Check_Stepper,
+	Protocol_Send(PC_Post_Complete, 4, PC_Check_Stepper,
 			StepperPosition[ch].byte, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Contrl_Valve(P_Buf_Typedef *p_buf) {
 	PowDev.Valve(p_buf->data[0]);
-	Protocol_Format(PC_Post_Complete, 1, PC_Contrl_Valve,
+	Protocol_Send(PC_Post_Complete, 1, PC_Contrl_Valve,
 			(uint8_t*) &PowDevStatus.byte[0], &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Contrl_Motor(P_Buf_Typedef *p_buf) {
 	PowDev.Motor(p_buf->data[0]);
-	Protocol_Format(PC_Post_Complete, 1, PC_Contrl_Motor,
+	Protocol_Send(PC_Post_Complete, 1, PC_Contrl_Motor,
 			(uint8_t*) &PowDevStatus.byte[1], &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
@@ -261,9 +252,8 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	data[0] = PowDevStatus.byte[1];
 	data[1] = FlowData[ch].byte[0];
 	data[2] = FlowData[ch].byte[1];
-	Protocol_Format(PC_Post_Complete, 3, PC_AutoContrl_Valve_With_Flow, data,
+	Protocol_Send(PC_Post_Complete, 3, PC_AutoContrl_Valve_With_Flow, data,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
@@ -305,9 +295,8 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 	data[0] = PowDevStatus.byte[1];
 	data[1] = LimitData.byte;
 
-	Protocol_Format(PC_Post_Complete, 2, PC_AutoContrl_Motor_With_Limit, data,
+	Protocol_Send(PC_Post_Complete, 2, PC_AutoContrl_Motor_With_Limit, data,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Motor_With_Time(P_Buf_Typedef *p_buf) {
@@ -343,9 +332,8 @@ void AutoContrl_Motor_With_Time(P_Buf_Typedef *p_buf) {
 	if ((p_buf->data[0] & (0x03 << 6)) != 0) {
 		PowDev.Motor(MotorCh_4, 0);
 	}
-	Protocol_Format(PC_Post_Complete, 1, PC_AutoContrl_Motor_With_Time,
+	Protocol_Send(PC_Post_Complete, 1, PC_AutoContrl_Motor_With_Time,
 			(uint8_t*) &PowDevStatus.byte[0], &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
@@ -364,9 +352,8 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 		}
 	}
 
-	Protocol_Format(PC_Post_Complete, 1, PC_AutoContrl_Stepper_With_Limit,
+	Protocol_Send(PC_Post_Complete, 1, PC_AutoContrl_Stepper_With_Limit,
 			&LimitData.byte, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
@@ -389,9 +376,8 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 		}
 	}
 
-	Protocol_Format(PC_Post_Complete, 10, PC_AutoContrl_Stepper_With_Presure,
+	Protocol_Send(PC_Post_Complete, 10, PC_AutoContrl_Stepper_With_Presure,
 			(uint8_t*) PressureData, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet,
@@ -440,9 +426,8 @@ void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
 	step.byte[3] = p_buf->data[4];
 	uint8_t tmp;
 	Stepper.MoveWithStep(ch, step.twoword);
-	Protocol_Format(PC_Post_Complete, 0, PC_AutoContrl_Stepper_With_Step, &tmp,
+	Protocol_Send(PC_Post_Complete, 0, PC_AutoContrl_Stepper_With_Step, &tmp,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
@@ -453,9 +438,8 @@ void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
 			| ((uint32_t) p_buf->data[3] << 8)
 			| ((uint32_t) p_buf->data[4] << 0);
 	Stepper.MoveWithPosition(ch, position);
-	Protocol_Format(PC_Post_Complete, 4, PC_AutoContrl_Stepper_With_Position,
+	Protocol_Send(PC_Post_Complete, 4, PC_AutoContrl_Stepper_With_Position,
 			(uint8_t*) StepperPosition[ch].byte, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Setting_ClearFlow() {
@@ -463,8 +447,7 @@ void Setting_ClearFlow() {
 	for (uint8_t i = 0; i < 8; ++i) {
 		FlowData[i].word = 0;
 	}
-	Protocol_Format(PC_Post_Complete, 0, PC_Setting_ClearFlow, &tmp, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
+	Protocol_Send(PC_Post_Complete, 0, PC_Setting_ClearFlow, &tmp, &SendBuf);
 }
 
 void Setting_SetStepperLimit(P_Buf_Typedef *p_buf) {
@@ -472,9 +455,8 @@ void Setting_SetStepperLimit(P_Buf_Typedef *p_buf) {
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
 	StepperLimit[ch].byte = p_buf->data[1];
-	Protocol_Format(PC_Post_Complete, 0, PC_Setting_SetStepperLimit, &tmp,
+	Protocol_Send(PC_Post_Complete, 0, PC_Setting_SetStepperLimit, &tmp,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Setting_ClearStepperPosition(P_Buf_Typedef *p_buf) {
@@ -482,9 +464,8 @@ void Setting_ClearStepperPosition(P_Buf_Typedef *p_buf) {
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
 	StepperPosition[ch].twoword = 0;
-	Protocol_Format(PC_Post_Complete, 0, PC_Setting_ClearStepperPositon, &tmp,
+	Protocol_Send(PC_Post_Complete, 0, PC_Setting_ClearStepperPositon, &tmp,
 			&SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 
 void Special_Reset() {
@@ -499,9 +480,8 @@ void Special_Continue() {
 
 }
 void Special_Online() {
-	Protocol_Format(PC_Post_Complete, 1, PC_Special_Online,
+	Protocol_Send(PC_Post_Complete, 1, PC_Special_Online,
 			(uint8_t *) &PC_LastAuto, &SendBuf);
-	Serial.print(SendBuf.data, SendBuf.len);
 }
 void Special_Cacel() {
 
@@ -512,9 +492,6 @@ void Special_BootLoader() {
 	FLASH_Unlock();
 	FLASH_ProgramHalfWord(AppFlagAdd, 0xa5a5);
 	FLASH_Lock();
-
-	while (Serial.checkBusy())
-		;
 
 	__disable_irq();
 	vu32 StackAdd = *(vu32*) NVIC_VectTab_FLASH;

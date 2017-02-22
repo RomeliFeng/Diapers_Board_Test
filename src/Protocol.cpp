@@ -34,28 +34,23 @@ void Serial_Event() {
 		for (uint8_t i = 0; i < P_ReceiveBuf.len; ++i) { //从缓冲中搬移出数据
 			P_ReceiveBuf.data[i] = pa_struct.data[DATA_OFFSET + i];
 		}
-		Protocol_Format(PC_Post_Get, P_ReceiveBuf.len, P_ReceiveBuf.pc,
+		Protocol_Send(PC_Post_Get, P_ReceiveBuf.len, P_ReceiveBuf.pc,
 				P_ReceiveBuf.data, &sendbuf);
-		Serial.print(sendbuf.data, sendbuf.len);
 		P_ReceiveFlag = true; //置位收到新的指令标志
 		break;
 	case PA_CommondError: //未知指令
-		Protocol_Format(PC_Post_CommandError, pa_struct.data[DATALEN_OFFSET],
+		Protocol_Send(PC_Post_CommandError, pa_struct.data[DATALEN_OFFSET],
 				pa_struct.data[COMMAND_OFFSET], &pa_struct.data[DATA_OFFSET],
 				&sendbuf);
-		Serial.print(sendbuf.data, sendbuf.len);
 		break;
 	case PA_CheckSumError: //ָ校验失败ֵ
-		Protocol_Format(PC_Post_CheckSumError,
-				pa_struct.data[DATALEN_OFFSET] + 1,
+		Protocol_Send(PC_Post_CheckSumError, pa_struct.data[DATALEN_OFFSET] + 1,
 				pa_struct.data[COMMAND_OFFSET], &pa_struct.data[DATA_OFFSET],
 				&sendbuf);
-		Serial.print(sendbuf.data, sendbuf.len);
 		break;
 	case PA_FrameError: //֡帧格式错误
-		Protocol_Format(PC_Post_CommandError, 1, pa_struct.data[DATALEN_OFFSET],
+		Protocol_Send(PC_Post_CommandError, 1, pa_struct.data[DATALEN_OFFSET],
 				pa_struct.data, &sendbuf);
-		Serial.print(sendbuf.data, sendbuf.len);
 		break;
 	default:
 		break;
@@ -134,7 +129,7 @@ void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {
 	pa_struct->pa = PA_Ok;
 }
 
-void Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
+void Protocol_Send(PC_Typedef com, uint8_t datalen, uint8_t com_get,
 		uint8_t* data, DataBuf_Typedef *sendbuf) {
 	uint8_t index = 0;
 	uint8_t sum = 0;
@@ -153,4 +148,5 @@ void Protocol_Format(PC_Typedef com, uint8_t datalen, uint8_t com_get,
 	sendbuf->data[index++] = sum;	//sum
 	//起始字节2+指令字节1+数据长度字节1+收到的指令1+数据长度+校验
 	sendbuf->len = (2 + 1 + 1 + 1 + datalen + 1);
+	Serial.print(sendbuf->data, sendbuf->len);
 }
