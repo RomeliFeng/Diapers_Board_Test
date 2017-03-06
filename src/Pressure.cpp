@@ -8,14 +8,14 @@
 #include "Pressure.h"
 #include "U_ADC1.h"
 
-#define Filter 10
+#define Filter 5
 
 #define PressureCh_0 ADC_Channel_3
 #define PressureCh_1 ADC_Channel_4
 #define PressureCh_2 ADC_Channel_5
 #define PressureCh_3 ADC_Channel_6
 #define PressureCh_4 ADC_Channel_7
-#define PressureSampleTime ADC_SampleTime_239Cycles5
+#define PressureSampleTime ADC_SampleTime_28Cycles5
 
 #define PRE0_PIN GPIO_Pin_3
 #define PRE1_PIN GPIO_Pin_4

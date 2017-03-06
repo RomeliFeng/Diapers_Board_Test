@@ -140,8 +140,8 @@ void Check_Digital() {
 
 void Check_Analog(P_Buf_Typedef *p_buf) {
 	Analog.RefreshData((AnalogBd_Typedef) p_buf->data[0]);
-	Protocol_Send(PC_Post_Complete, 28, PC_Check_Analog,
-			(uint8_t*) AnalogData, &SendBuf);
+	Protocol_Send(PC_Post_Complete, 28, PC_Check_Analog, (uint8_t*) AnalogData,
+			&SendBuf);
 }
 
 void Check_Pressure() {
@@ -217,7 +217,7 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < 30000) { //超时时间30S
+	while (millis() - timelast < Valve_With_Flow_TimeLimit) { //超时时间30S
 		if (FlowData[ch].word >= flowlimit.word) {
 			break;
 		}
@@ -271,7 +271,7 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < 30000) { //30S
+	while (millis() - timelast < Motor_With_Limit_TimeLimit) { //30S
 		Limit.RefreshData();
 		if ((LimitData.byte & p_buf->data[1]) == p_buf->data[1]) {
 			break;
@@ -344,10 +344,12 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 					StepperDIR_Backward : StepperDIR_Forward;
 	Stepper.SetDIR(ch, dir);
 	uint32_t timelast = millis();
+
+	Stepper.AccCurve(ENABLE);
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
 		Limit.RefreshData();
 		Stepper.MoveOneStep(ch);
-		if (millis() - timelast > 120000) { //2min
+		if (millis() - timelast > Stepper_With_Limit_TimeLimit) { //2min
 			break;
 		}
 	}
@@ -369,9 +371,11 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 	pre.byte[1] = p_buf->data[3];
 
 	uint32_t timelast = millis();
+
+	Stepper.AccCurve(DISABLE);
 	while (!AutoContrl_Stepper_With_Presure_Condition(p_buf->data[1], pre.word)) {
 		Stepper.MoveOneStep(ch);
-		if (millis() - timelast > 120000) {
+		if (millis() - timelast > Stepper_With_Presure_TimeLimit) {
 			break;
 		}
 	}
@@ -425,6 +429,8 @@ void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
 	step.byte[2] = p_buf->data[3];
 	step.byte[3] = p_buf->data[4];
 	uint8_t tmp;
+
+	Stepper.AccCurve(ENABLE);
 	Stepper.MoveWithStep(ch, step.twoword);
 	Protocol_Send(PC_Post_Complete, 0, PC_AutoContrl_Stepper_With_Step, &tmp,
 			&SendBuf);
@@ -437,6 +443,9 @@ void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
 			| ((uint32_t) p_buf->data[2] << 16)
 			| ((uint32_t) p_buf->data[3] << 8)
 			| ((uint32_t) p_buf->data[4] << 0);
+
+
+	Stepper.AccCurve(ENABLE);
 	Stepper.MoveWithPosition(ch, position);
 	Protocol_Send(PC_Post_Complete, 4, PC_AutoContrl_Stepper_With_Position,
 			(uint8_t*) StepperPosition[ch].byte, &SendBuf);

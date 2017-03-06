@@ -26,6 +26,8 @@ class StepperClass {
 public:
 	StepperClass() {
 		GPIOInit();
+		TIMInit();
+		NVICInit();
 		Lock();
 	}
 	void SetDIR(StepperCh_Typedef ch, StepperDIR_Typedef dir);
@@ -35,8 +37,11 @@ public:
 	void Lock();
 	void Lock(StepperCh_Typedef ch);
 	void Unlock(StepperCh_Typedef ch);
+	void AccCurve(FunctionalState NewState);
 private:
 	void GPIOInit();
+	void TIMInit();
+	void NVICInit();
 };
 
 extern StepperClass Stepper;

@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	__enable_irq();
 
 	Serial.begin(1024000);
-	Delay_Init(50);
+	Delay_Init(3);
 
 	Serial.print((uint8_t*) InitBuf, 5);
 	while (1) {

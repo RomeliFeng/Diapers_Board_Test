@@ -101,7 +101,7 @@ AnalogClass::AnalogClass() {
 	GPIOInit();
 
 	PWM.Init(PWM_Period, PWM_Period / 2);
-	PWM.SetPrescaler(3);
+//	PWM.SetPrescaler(3);
 	PWM.SetPolarity(PWMCh_1, PWMPolarity_Low);
 	PWM.SetPolarity(PWMCh_2, PWMPolarity_Low);
 	PWM.SetPolarity(PWMCh_3, PWMPolarity_High);
@@ -156,7 +156,7 @@ void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 	SelectBd(bo);
 //�жϰ忨�Ƿ���ڣ�����������ȫ�����Ϊ0xffff�˳�
 	// ͬ���л����忨����ͨ��
-	SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2);
+	SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4);
 	U_ADC1.RefreshData(ADC_Channel_0, ADC_SampleTime_1Cycles5);
 	if (U_ADC1Data > 100) { //�忨δѡ��
 		for (int i = 0; i < AnalogCh_Size; ++i) {
@@ -173,9 +173,9 @@ void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 		index_off = index;
 		SampleSync();
 		while (index - index_off < 1) { //  1�����ڲɼ�N������
-			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //ͬ���л����忨����ͨ��
+			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4); //ͬ���л����忨����ͨ��
 			U_ADC1.RefreshData(); //�ɼ�����
-			Analog.SelectCh((AnalogCh_Typedef) index, 2); //�л����ɼ�ͨ��
+			Analog.SelectCh((AnalogCh_Typedef) index, 4); //�л����ɼ�ͨ��
 			U_ADC1.RefreshData();
 			AnalogData[index].word = U_ADC1Data * HRCom; //ʵ��ֵ=����ֵ*����ֵ
 			if (AnalogData[index].word > 4095)
@@ -184,11 +184,11 @@ void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 		}
 	}
 	/*��ʼ����NTC�źţ���Ҫͬ������*/
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 2); //ͬ���л����忨����ͨ��
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4); //ͬ���л����忨����ͨ��
 	U_ADC1.RefreshData();
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 2); //�л����ɼ�ͨ��
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 4); //�л����ɼ�ͨ��
 	U_ADC1.RefreshData();
-	AnalogData[AnalogCh_NTC].word = U_ADC1Data * NTCCom; //ʵ��ֵ=����ֵ*����ֵ
+	AnalogData[AnalogCh_NTC].word = U_ADC1Data; //* NTCCom; //ʵ��ֵ=����ֵ*����ֵ
 }
 
 /*����TIM2��OC1���м�ʱ����CC1�ж���λ��־*/
