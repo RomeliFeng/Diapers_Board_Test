@@ -346,18 +346,19 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 	StepperDIR_Typedef dir =
 			((p_buf->data[0] & 0x40) == 0x40) ?
 					StepperDIR_Backward : StepperDIR_Forward;
+	if ((p_buf->data[0] & 0x20) == 0x20) {
+		Stepper.AccCurve(ENABLE);
+	} else {
+		Stepper.AccCurve(DISABLE);
+	}
 	Stepper.SetDIR(ch, dir);
 
 	uint32_t timelast = millis();
-	uint8_t count = 0;
 
-	Stepper.AccCurve(ENABLE);
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
 		Limit.RefreshData();
 		Stepper.MoveOneStep(ch);
 		if (millis() - timelast > Stepper_With_Limit_TimeLimit) { //2min
-			count++;
-			if (count >= 10)
 				break;
 		}
 	}
@@ -442,6 +443,12 @@ void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
 	StepperDIR_Typedef dir =
 			((p_buf->data[0] & 0x40) == 0x40) ?
 					StepperDIR_Backward : StepperDIR_Forward;
+	if ((p_buf->data[0] & 0x20) == 0x20) {
+		Stepper.AccCurve(ENABLE);
+	} else {
+		Stepper.AccCurve(DISABLE);
+	}
+
 	Stepper.SetDIR(ch, dir);
 	TwoWordtoByteSigned_Typedef step;
 	step.byte[0] = p_buf->data[1];
@@ -450,7 +457,6 @@ void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
 	step.byte[3] = p_buf->data[4];
 	uint8_t tmp;
 
-	Stepper.AccCurve(ENABLE);
 	Stepper.MoveWithStep(ch, step.twoword);
 	Protocol_Send(PC_Post_Complete, 0, PC_AutoContrl_Stepper_With_Step, &tmp,
 			&SendBuf);
@@ -459,12 +465,18 @@ void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
 void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
+	if ((p_buf->data[0] & 0x20) == 0x20) {
+		Stepper.AccCurve(ENABLE);
+	} else {
+		Stepper.AccCurve(DISABLE);
+	}
+
 	uint32_t position = ((uint32_t) p_buf->data[1] << 24)
 
 	| ((uint32_t) p_buf->data[2] << 16) | ((uint32_t) p_buf->data[3] << 8)
 			| ((uint32_t) p_buf->data[4] << 0);
 
-	Stepper.AccCurve(ENABLE);
+
 	Stepper.MoveWithPosition(ch, position);
 	Protocol_Send(PC_Post_Complete, 4, PC_AutoContrl_Stepper_With_Position,
 			(uint8_t*) StepperPosition[ch].byte, &SendBuf);

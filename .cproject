@@ -294,7 +294,7 @@
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart.451305264" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.usenewlibnano.1261568834" name="Use newlib-nano (--specs=nano.specs)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.usenewlibnano" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs.1849213664" name="Libraries (-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs" valueType="libs"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs.1849213664" name="Libraries (-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input.1197844576" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -323,7 +323,7 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs">
-				<option id="cmsis.device.name" value="STM32F103R8"/>
+				<option id="cmsis.device.name" value="STM32F103RB"/>
 				<option id="cmsis.subfamily.name" value="STM32F103"/>
 				<option id="cmsis.family.name" value="STM32F1 Series"/>
 				<option id="cmsis.device.vendor.name" value="STMicroelectronics"/>
@@ -334,7 +334,7 @@
 				<option id="cmsis.core.name" value="Cortex-M3"/>
 				<option id="cmsis.compiler.define" value="STM32F10X_MD"/>
 				<memory section="IRAM1" size="0x5000" start="0x20000000" startup="0"/>
-				<memory section="IROM1" size="0x10000" start="0x08000000" startup="1"/>
+				<memory section="IROM1" size="0x20000" start="0x08000000" startup="1"/>
 			</storageModule>
 		</cconfiguration>
 	</storageModule>

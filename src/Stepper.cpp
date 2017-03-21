@@ -24,7 +24,7 @@
 #define DIR2_SET GPIOE->BSRR= GPIO_Pin_1
 #define DIR2_RESET GPIOE->BRR = GPIO_Pin_1
 
-#define SPEED_NORMAL 2000
+#define SPEED_NORMAL 1500
 #define SPEED_MAX 16000 //每秒最大步数
 #define SPEED_ACC 50000 //最大加速度 每秒
 
@@ -81,6 +81,7 @@ void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
 	&& ((LimitData.byte & StepperLimit[ch].byte) == StepperLimit[ch].byte)) {
 		return;
 	}
+
 	if (StepperMoveProtect(ch) == false) { //基于Protect.cpp的限位移动保护
 		return;
 	}
