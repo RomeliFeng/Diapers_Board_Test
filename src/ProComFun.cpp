@@ -187,8 +187,9 @@ void Contrl_Motor(P_Buf_Typedef *p_buf) {
 }
 
 void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
-	FlowCh_Typedef ch = (FlowCh_Typedef) p_buf->data[1];
+	FlowCh_Typedef ch;
 	WordtoByte_Typedef flowlimit;
+	ch = (FlowCh_Typedef) p_buf->data[1];
 	flowlimit.byte[0] = p_buf->data[2];
 	flowlimit.byte[1] = p_buf->data[3];
 	if ((p_buf->data[0] & 0x01) != 0) {
@@ -217,7 +218,7 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < Valve_With_Flow_TimeLimit) { //超时时间30S
+	while (millis() - timelast < Valve_With_Flow_TimeLimit) { //超时时间60S
 		if (FlowData[ch].word >= flowlimit.word) {
 			break;
 		}
@@ -271,10 +272,13 @@ void AutoContrl_Motor_With_Limit(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
+	uint32_t count = 0;
 	while (millis() - timelast < Motor_With_Limit_TimeLimit) { //30S
 		Limit.RefreshData();
 		if ((LimitData.byte & p_buf->data[1]) == p_buf->data[1]) {
-			break;
+			count++;
+			if (count >= 10)
+				break;
 		}
 	}
 
@@ -343,14 +347,18 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 			((p_buf->data[0] & 0x40) == 0x40) ?
 					StepperDIR_Backward : StepperDIR_Forward;
 	Stepper.SetDIR(ch, dir);
+
 	uint32_t timelast = millis();
+	uint8_t count = 0;
 
 	Stepper.AccCurve(ENABLE);
 	while ((LimitData.byte & p_buf->data[1]) != p_buf->data[1]) {
 		Limit.RefreshData();
 		Stepper.MoveOneStep(ch);
 		if (millis() - timelast > Stepper_With_Limit_TimeLimit) { //2min
-			break;
+			count++;
+			if (count >= 10)
+				break;
 		}
 	}
 
@@ -371,10 +379,26 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 	pre.byte[1] = p_buf->data[3];
 
 	uint32_t timelast = millis();
+	uint16_t pre_avg;
+	uint8_t count = 0;
 
 	Stepper.AccCurve(DISABLE);
-	while (!AutoContrl_Stepper_With_Presure_Condition(p_buf->data[1], pre.word)) {
+	while (true) {
 		Stepper.MoveOneStep(ch);
+		pre_avg = AutoContrl_Stepper_With_Presure_Condition(p_buf->data[1]);
+		if (dir == StepperDIR_Forward) {
+			if (pre.word >= pre_avg) {
+				count++;
+				if (count >= 10)
+					break;
+			}
+		} else {
+			if (pre.word <= pre_avg) {
+				count++;
+				if (count >= 10)
+					break;
+			}
+		}
 		if (millis() - timelast > Stepper_With_Presure_TimeLimit) {
 			break;
 		}
@@ -384,8 +408,7 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 			(uint8_t*) PressureData, &SendBuf);
 }
 
-bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet,
-		uint16_t pre) {
+uint16_t AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet) {
 	Pressure.RefreshData();
 	uint16_t preavg = 0;
 	uint8_t prenum = 0;
@@ -410,10 +433,7 @@ bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet,
 		preavg += PressureData[4].word;
 	}
 	preavg /= prenum;
-	if (preavg >= pre) {
-		return true;
-	}
-	return false;
+	return preavg;
 }
 
 void AutoContrl_Stepper_With_Step(P_Buf_Typedef *p_buf) {
@@ -440,10 +460,9 @@ void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
 	StepperCh_Typedef ch =
 			((p_buf->data[0] & 0x80) == 0x80) ? StepperCh_2 : StepperCh_1;
 	uint32_t position = ((uint32_t) p_buf->data[1] << 24)
-			| ((uint32_t) p_buf->data[2] << 16)
-			| ((uint32_t) p_buf->data[3] << 8)
-			| ((uint32_t) p_buf->data[4] << 0);
 
+	| ((uint32_t) p_buf->data[2] << 16) | ((uint32_t) p_buf->data[3] << 8)
+			| ((uint32_t) p_buf->data[4] << 0);
 
 	Stepper.AccCurve(ENABLE);
 	Stepper.MoveWithPosition(ch, position);
@@ -505,7 +524,7 @@ void Special_BootLoader() {
 	__disable_irq();
 	vu32 StackAdd = *(vu32*) NVIC_VectTab_FLASH;
 	if ((StackAdd & 0x2ffe0000) == 0x20000000) { //�ж�ջ����ַ�Ƿ���128k���ڣ�ջ��Ĭ������ߵ�ַ��
-		BootFun = (pFun) (*(vu32*) (NVIC_VectTab_FLASH + 4));	//��λ��ַ
+		BootFun = (pFun) (*(vu32*) (NVIC_VectTab_FLASH + 4)); //��λ��ַ
 		__set_MSP(StackAdd);
 		BootFun();
 	}

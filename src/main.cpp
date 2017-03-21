@@ -6,6 +6,7 @@
 #include "main.h"
 
 const uint8_t InitBuf[] = { 0xff, 0xff, 0xc4, 0x00, 0xc4 };
+const uint8_t Version[] = "Diapers_Board_V1.0";
 
 int main(int argc, char* argv[]) {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0);

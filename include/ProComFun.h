@@ -22,7 +22,7 @@
 #include "Stepper.h"
 #include "Water.h"
 
-#define Valve_With_Flow_TimeLimit 30000
+#define Valve_With_Flow_TimeLimit 60000
 //#define Motor_With_Time_TimeLimit 10000
 #define Motor_With_Limit_TimeLimit 10000
 #define Stepper_With_Limit_TimeLimit 120000
@@ -63,7 +63,7 @@ void Special_Online();
 void Special_Cacel();
 void Special_BootLoader();
 
-bool AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet, uint16_t pre);
+uint16_t AutoContrl_Stepper_With_Presure_Condition(uint8_t pre_selet);
 
 extern PC_Typedef PC_Run;
 extern uint8_t PC_Run_DataLen;
