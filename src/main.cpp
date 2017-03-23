@@ -6,13 +6,14 @@
 #include "main.h"
 
 const uint8_t InitBuf[] = { 0xff, 0xff, 0xc4, 0x00, 0xc4 };
-const uint8_t Version[] = "Diapers_Board_V1.0";
+const uint8_t Version[] = "Diapers_Board_V1.0a";
 
 int main(int argc, char* argv[]) {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0);
 	__enable_irq();
 
 	Serial.begin(1024000);
+	Limit.RefreshData();
 	Delay_Init(3);
 
 	Serial.print((uint8_t*) InitBuf, 5);

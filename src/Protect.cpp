@@ -8,6 +8,7 @@
 #include "Protect.h"
 
 bool MotorMoveProtect() { //判断电机移动操作是否在上限位操作
+	Limit.RefreshData();
 	if (LimitData.bit.bit0 != 0) {
 		return true;
 	} else {

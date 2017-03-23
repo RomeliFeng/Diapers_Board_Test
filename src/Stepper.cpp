@@ -25,8 +25,8 @@
 #define DIR2_RESET GPIOE->BRR = GPIO_Pin_1
 
 #define SPEED_NORMAL 1500
-#define SPEED_MAX 16000 //每秒最大步数
-#define SPEED_ACC 50000 //最大加速度 每秒
+#define SPEED_MAX 32000 //每秒最大步数
+#define SPEED_ACC 65000 //最大加速度 每秒
 
 StepperClass Stepper;
 
@@ -179,8 +179,8 @@ void StepperClass::TIMInit() {
 
 	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 10000
-	TIM_TimeBaseInitStructure.TIM_Period = 100000 / SPEED_ACC;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 100000
+	TIM_TimeBaseInitStructure.TIM_Period = 65000 / SPEED_ACC;
 	TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);
 

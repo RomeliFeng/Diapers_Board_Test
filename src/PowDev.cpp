@@ -37,7 +37,7 @@ bool PowDevClass::Valve(ValveCh_Typedef ch, FunctionalState NewState) {
 
 bool PowDevClass::Motor(uint8_t status) {
 	if (MotorMoveProtect()) {
-		PowDevStatus.byte[1] = 0; //��ո߰�λ
+		PowDevStatus.byte[1] = 0; //先关闭，在赋值新的状态
 		PowDevStatus.byte[1] = status;
 		HC595_PowDev.Write(PowDevStatus.word);
 	} else {
@@ -48,7 +48,7 @@ bool PowDevClass::Motor(uint8_t status) {
 
 bool PowDevClass::Motor(MotorCh_Typedef ch, uint8_t ctl) {
 	if (MotorMoveProtect()) {
-		PowDevStatus.byte[1] &= ~(0x03 << ch); //�������λ
+		PowDevStatus.byte[1] &= ~(0x03 << ch); //先关闭，在赋值新的状态
 		PowDevStatus.byte[1] |= ctl << ch;
 		HC595_PowDev.Write(PowDevStatus.word);
 	} else {
