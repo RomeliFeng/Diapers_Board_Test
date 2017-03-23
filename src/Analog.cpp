@@ -29,8 +29,9 @@
 #define PWM_Period 18000
 #define PWM_Duty 9000
 
-#define NTCCom 1.1414 //�����������貹��ֵ ��ֵֻ��1.5Cycle����ʱ��Ч
-#define HRCom 1.414 //HR202�ź����貹��
+//补偿参数应在修改修改采样时间后重新标定，偏移疑似信号源内阻导致
+#define NTCCom 1.1414 //热敏电阻补偿
+#define HRCom 1.414 //HR202补偿
 
 volatile static uint16_t Status_Now = 0x0000;
 
@@ -96,15 +97,15 @@ const uint16_t AnalogChAdd[16] = { 0x0000, 0x0010, 0x0008, 0x0018, 0x0004,
 		0x0014, 0x000c, 0x001c, 0x0002, 0x0012, 0x000a, 0x001a, 0x0006, 0x0016,
 		0x000e, 0x001e };
 
-/*�����ź����ɵ�ʱ����ͬ��������ʱ��*/
+/*初始化GPIO和采样所需的两路PWM*/
 AnalogClass::AnalogClass() {
 	GPIOInit();
 
 	PWM.Init(PWM_Period, PWM_Period / 2);
 //	PWM.SetPrescaler(3);
 	PWM.SetPolarity(PWMCh_1, PWMPolarity_Low);
-	PWM.SetPolarity(PWMCh_2, PWMPolarity_Low);
-	PWM.SetPolarity(PWMCh_3, PWMPolarity_High);
+	PWM.SetPolarity(PWMCh_2, PWMPolarity_High);   //临时改动
+	PWM.SetPolarity(PWMCh_3, PWMPolarity_Low);
 	PWM.SetDuty(PWMCh_1, 4000);
 }
 
@@ -119,79 +120,76 @@ void AnalogClass::GPIOInit() {
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
-/*����HC595�л��忨*/
+/*选中采样板卡*/
 void AnalogClass::SelectBd(AnalogBd_Typedef bo) {
-	Status_Now &= 0x001f; //�����ѡ��
+	Status_Now &= 0x001f;
 	Status_Now |= AnalogBdAdd[bo];
 	HC595_Analog.Write(Status_Now);
 }
 
-/*����HC595�л�ͨ��*/
+/*选中采样通道*/
 void AnalogClass::SelectCh(AnalogCh_Typedef ch) {
-	Status_Now &= ~(0x001f); //���ͨ��ѡ��
+	Status_Now &= ~(0x001f);
 	Status_Now |= AnalogChAdd[ch];
 	HC595_Analog.Write(Status_Now);
 
 }
 
-/*�л�ͨ�������ȴ��л���ɣ�����TIM2 Periodֵ���м�ʱ��*/
+/*带延时的选择采样通道，基于TIM2定时器计算*/
 void AnalogClass::SelectCh(AnalogCh_Typedef ch, uint16_t us) {
 	uint16_t Count, usCount;
-	//�ȴ�ʱ��= �ں�ʱ��ÿusռ�õ�������/TIM2��Ƶ��*�ȴ�us
+	//TIM周期=系统时钟/10000000/TIM分频数*延时微秒数
 	usCount = SystemCoreClock / 1000000 / (TIM2->PSC + 1) * us;
 	SelectCh(ch);
-	// TIM2���� 18000 1������1ms
+	//TIM2四分频 18000系统周期为1mS
 	Count = TIM2->CNT;
-	if (Count + usCount < TIM2->ARR) //�ж��Ƿ�����
-		while (TIM2->CNT - Count < usCount)
-			//�������
+	if (Count + usCount < TIM2->ARR) //判断是否会溢出
+		while (TIM2->CNT - Count < usCount)//不会溢出
 			;
 	else {
-		while ((TIM2->ARR - Count + TIM2->CNT) < usCount)
+		while ((TIM2->ARR - Count + TIM2->CNT) < usCount)//会溢出
 			;
 	}
 }
 
 void AnalogClass::RefreshData(AnalogBd_Typedef bo) {
 	SelectBd(bo);
-//�жϰ忨�Ƿ���ڣ�����������ȫ�����Ϊ0xffff�˳�
-	// ͬ���л����忨����ͨ��
-	SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4);
+	SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4);//先判断板卡是否存在
 	U_ADC1.RefreshData(ADC_Channel_0, ADC_SampleTime_1Cycles5);
-	if (U_ADC1Data > 100) { //�忨δѡ��
-		for (int i = 0; i < AnalogCh_Size; ++i) {
+	if (U_ADC1Data > 100) { //板卡存在信号不存在
+		for (int i = 0; i < AnalogCh_Size; ++i) {//填充默认数据
 			AnalogData[i].word = 0xffff;
 		}
 		return;
 	}
-	AnalogData[AnalogCh_Exsit].word = 0; //�忨����
+	AnalogData[AnalogCh_Exsit].word = 0; //板卡存在，赋值存在信号
 
-	/*��ʼ����HR202�źţ���Ҫͬ������*/
+	/*HR202信号采集*/
 	uint8_t index = 0;
 	uint8_t index_off;
-	while (index < (AnalogCh_NTC)) { //��������
+	while (index < (AnalogCh_NTC)) { //在采集完成前循环
 		index_off = index;
 		SampleSync();
-		while (index - index_off < 1) { //  1�����ڲɼ�N������
-			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4); //ͬ���л����忨����ͨ��
-			U_ADC1.RefreshData(); //�ɼ�����
-			Analog.SelectCh((AnalogCh_Typedef) index, 4); //�л����ɼ�ͨ��
+		while (index - index_off < 1) { //单个信号周期采集时间
+			Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4); //利用存在信号清除上次采样的漂移
 			U_ADC1.RefreshData();
-			AnalogData[index].word = U_ADC1Data * HRCom; //ʵ��ֵ=����ֵ*����ֵ
+			Analog.SelectCh((AnalogCh_Typedef) index, 4); //切换采样通道 等待4us
+			U_ADC1.RefreshData();
+			AnalogData[index].word = U_ADC1Data * HRCom; //存储数据，进行信号补偿
 			if (AnalogData[index].word > 4095)
 				AnalogData[index].word = 4095;
 			index++;
 		}
 	}
-	/*��ʼ����NTC�źţ���Ҫͬ������*/
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4); //ͬ���л����忨����ͨ��
+	/*热敏电阻值读取*/
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_Exsit, 4);
 	U_ADC1.RefreshData();
-	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 4); //�л����ɼ�ͨ��
+	Analog.SelectCh((AnalogCh_Typedef) AnalogCh_NTC, 4);
 	U_ADC1.RefreshData();
-	AnalogData[AnalogCh_NTC].word = U_ADC1Data; //* NTCCom; //ʵ��ֵ=����ֵ*����ֵ
+	AnalogData[AnalogCh_NTC].word = U_ADC1Data; //* NTCCom;
 }
 
-/*����TIM2��OC1���м�ʱ����CC1�ж���λ��־*/
+/*采样信号同步函数*/
 void AnalogClass::SampleSync() {
 	Analog_SamTrig = false;
 	PWM.SwitchInterrupt(PWMCh_1, ENABLE);
@@ -199,7 +197,7 @@ void AnalogClass::SampleSync() {
 		;
 }
 
-/*CC1�жϷ���Ϊͬ����������*/
+/*CC1中断用于采样信号同步*/
 void U_TIM2_CC1_ISR() {
 	PWM.SwitchInterrupt(PWMCh_1, DISABLE);
 	Analog_SamTrig = true;
