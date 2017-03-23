@@ -198,7 +198,7 @@ void AnalogClass::SampleSync() {
 }
 
 /*CC1中断用于采样信号同步*/
-void U_TIM2_CC1_ISR() {
+void U_TIM2_CC1_ISR () {
 	PWM.SwitchInterrupt(PWMCh_1, DISABLE);
 	Analog_SamTrig = true;
 }
