@@ -1,7 +1,7 @@
 /*
  * HC595.cpp
  *
- *  Created on: 2016Äê12ÔÂ24ÈÕ
+ *  Created on: 2016ï¿½ï¿½12ï¿½ï¿½24ï¿½ï¿½
  *      Author: Romeli
  */
 
@@ -50,10 +50,10 @@ void HC595Class::GPIOInit() {
 }
 
 void HC595Class::Write(uint16_t data) {
-	STCP_RESET;	//ÏÈÖÃÎªµÍµçÆ½ ÒÔ±ã²úÉúÉÏÉýÑØ¸üÐÂÂö³å
+	STCP_RESET;	//ï¿½ï¿½ï¿½ï¿½Îªï¿½Íµï¿½Æ½ ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	Delay();
 	for (uint16_t mask = 0x8000; mask != 0; mask >>= 1) {
-		SHCP_RESET; ////ÏÈÖÃÎªµÍµçÆ½ ÒÔ±ã²úÉúÉÏÉýÑØÒÆÎ»Âö³å  Qn>>Q(n+1)
+		SHCP_RESET; ////ï¿½ï¿½ï¿½ï¿½Îªï¿½Íµï¿½Æ½ ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½  Qn>>Q(n+1)
 		Delay();
 		if ((mask & data) != 0) {
 			DS_SET;
@@ -70,13 +70,15 @@ void HC595Class::Write(uint16_t data) {
 }
 
 inline void HC595Class::Disable() {
-	OE_SET;	//¸ß×èÊä³ö
+	OE_SET;	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 inline void HC595Class::Enable() {
-	OE_RESET; //Ê¹ÄÜÊä³ö
+	OE_RESET; //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 inline void HC595Class::Delay() {
+	__NOP();
+	__NOP();
 	__NOP();
 }

@@ -1,7 +1,7 @@
 /*
  * Digital.cpp
  *
- *  Created on: 2016年12月28日
+ *  Created on: 2016锟斤拷12锟斤拷28锟斤拷
  *      Author: Romeli
  */
 
@@ -53,18 +53,15 @@ void DigitalClass::RefreshData() {
 	uint32_t data;
 	uint8_t DelayCount;
 	for (uint8_t ch = 0; ch < 21; ++ch) {
-		SelectCh(ch); //选择通道
+		SelectCh(ch); //选锟斤拷通锟斤拷
 		DelayCount = 200;
 		while (DelayCount--)
 			;
-		data = HC165_Digital.Read(24); //读取24块板子的数据
+		data = HC165_Digital.Read(24); //
 		Digital_Data[ch * 3] = (uint8_t) data;
 		Digital_Data[ch * 3 + 1] = (uint8_t) (data >> 8);
 		Digital_Data[ch * 3 + 2] = (uint8_t) (data >> 16);
 	}
-//	Digital_Data[60] = ~Digital_Data[60];
-//	Digital_Data[61] = ~Digital_Data[61];
-//	Digital_Data[62] = ~Digital_Data[62];
 }
 
 void DigitalClass::GPIOInit() {

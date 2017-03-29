@@ -26,7 +26,7 @@
 
 #define SPEED_NORMAL 1500
 #define SPEED_MAX 32000 //每秒最大步数
-#define SPEED_ACC 65000 //最大加速度 每秒
+#define SPEED_ACC 120000 //最大加速度 每秒
 
 StepperClass Stepper;
 
@@ -179,8 +179,8 @@ void StepperClass::TIMInit() {
 
 	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 100000
-	TIM_TimeBaseInitStructure.TIM_Period = 65000 / SPEED_ACC;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 1000000
+	TIM_TimeBaseInitStructure.TIM_Period = 100000 / (SPEED_ACC / 2);
 	TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);
 
@@ -205,7 +205,7 @@ void StepperClass::NVICInit() {
 extern "C" void TIM4_IRQHandler() {
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update)) {
 		if (StepperSpeed < SPEED_MAX) {
-			StepperSpeed++;
+			StepperSpeed += 2;
 		} else {
 			StepperSpeed = SPEED_MAX;
 			TIM_Cmd(TIM4, DISABLE);

@@ -1,7 +1,7 @@
 /*
  * HC165.cpp
  *
- *  Created on: 2017年1月6日
+ *  Created on: 2017锟斤拷1锟斤拷6锟斤拷
  *      Author: Romeli
  */
 
@@ -28,9 +28,9 @@ uint32_t HC165Class::Read(uint8_t len) {
 	uint32_t data = 0;
 	PL_RESET;
 	Delay();
-	PL_SET; //产生一个低电平所存信号
-	CP_RESET; //拉低以便产生上升沿
-	CE_RESET; //使能时钟
+	PL_SET; //
+	CP_RESET; //
+	CE_RESET; //
 	Delay();
 	uint32_t mask = (1 << (len - 1));
 	if (DAT_READ != 0) {
@@ -77,5 +77,7 @@ void HC165Class::GPIOInit() {
 }
 
 inline void HC165Class::Delay() {
-		__NOP();
+	__NOP();
+	__NOP();
+	__NOP();
 }

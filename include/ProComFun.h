@@ -22,14 +22,6 @@
 #include "Stepper.h"
 #include "Water.h"
 
-#define Valve_With_Flow_TimeLimit 60000
-//#define Motor_With_Time_TimeLimit 10000
-#define Motor_With_Limit_TimeLimit 10000
-#define Stepper_With_Limit_TimeLimit 120000
-#define Stepper_With_Presure_TimeLimit 120000
-//#define Stepper_With_Step_TimeLimit 120000
-//#define Stepper_With_Position_TimeLimit 120000
-
 void PC_Check(P_Buf_Typedef *p_buf);
 void PC_Contrl(P_Buf_Typedef *p_buf);
 void PC_AutoContrl(P_Buf_Typedef *p_buf);

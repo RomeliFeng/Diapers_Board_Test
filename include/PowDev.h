@@ -44,6 +44,8 @@ typedef union _MotorStatus_Typedef {
 	MotorChStatus_Typedef motor;
 } MotorStatus_Typedef;
 
+#define PumpCh ValveCh_6
+
 class PowDevClass {
 public:
 	bool Valve(uint8_t status);

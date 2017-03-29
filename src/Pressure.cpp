@@ -27,46 +27,56 @@ PressureClass Pressure;
 WordtoByte_Typedef PressureData[5] = { 0, 0, 0, 0, 0 };
 
 void PressureClass::RefreshData() {
-	uint32_t tmp;
 	U_ADC1.RegularChannelConfig(PressureCh_0, PressureSampleTime);
-	tmp = 0;
+	U_ADC1.RefreshData();
+	PressureData[0].word = U_ADC1Data;
 	for (uint8_t i = 0; i < Filter; ++i) {
 		U_ADC1.RefreshData();
-		tmp += U_ADC1Data;
+		PressureData[0].word =
+				PressureData[0].word > U_ADC1Data ?
+						U_ADC1Data : PressureData[0].word;
 	}
-	PressureData[0].word = U_ADC1Data / Filter;
 
 	U_ADC1.RegularChannelConfig(PressureCh_1, PressureSampleTime);
-	tmp = 0;
+	U_ADC1.RefreshData();
+	PressureData[1].word = U_ADC1Data;
 	for (uint8_t i = 0; i < Filter; ++i) {
 		U_ADC1.RefreshData();
-		tmp += U_ADC1Data;
+		PressureData[1].word =
+				PressureData[1].word > U_ADC1Data ?
+						U_ADC1Data : PressureData[1].word;
 	}
-	PressureData[1].word = U_ADC1Data / Filter;
 
 	U_ADC1.RegularChannelConfig(PressureCh_2, PressureSampleTime);
-	tmp = 0;
+	U_ADC1.RefreshData();
+	PressureData[2].word = U_ADC1Data;
 	for (uint8_t i = 0; i < Filter; ++i) {
 		U_ADC1.RefreshData();
-		tmp += U_ADC1Data;
+		PressureData[2].word =
+				PressureData[2].word > U_ADC1Data ?
+						U_ADC1Data : PressureData[2].word;
 	}
-	PressureData[2].word = U_ADC1Data / Filter;
 
 	U_ADC1.RegularChannelConfig(PressureCh_3, PressureSampleTime);
-	tmp = 0;
+	U_ADC1.RefreshData();
+	PressureData[3].word = U_ADC1Data;
 	for (uint8_t i = 0; i < Filter; ++i) {
 		U_ADC1.RefreshData();
-		tmp += U_ADC1Data;
+		PressureData[3].word =
+				PressureData[3].word > U_ADC1Data ?
+						U_ADC1Data : PressureData[3].word;
 	}
-	PressureData[3].word = U_ADC1Data / Filter;
 
 	U_ADC1.RegularChannelConfig(PressureCh_4, PressureSampleTime);
-	tmp = 0;
+	U_ADC1.RefreshData();
+	PressureData[4].word = U_ADC1Data;
 	for (uint8_t i = 0; i < Filter; ++i) {
 		U_ADC1.RefreshData();
-		tmp += U_ADC1Data;
+		PressureData[4].word =
+				PressureData[4].word > U_ADC1Data ?
+						U_ADC1Data : PressureData[4].word;
 	}
-	PressureData[4].word = U_ADC1Data / Filter;
+
 }
 
 void PressureClass::GPIOInit() {
@@ -78,6 +88,5 @@ void PressureClass::GPIOInit() {
 	;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }

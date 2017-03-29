@@ -8,6 +8,7 @@
 #include <ProComFun.h>
 #include "Protocol.h"
 #include "U_USART1.h"
+#include "Protect.h"
 
 #define AppFlagAdd 0x08001c00 //bootloader 8k
 
@@ -218,12 +219,49 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
-	while (millis() - timelast < Valve_With_Flow_TimeLimit) { //超时时间60S
-		if (FlowData[ch].word >= flowlimit.word) {
-			break;
+	if (p_buf->data[4] == 0x01) { //结合液位探针信号自动控制注水
+		volatile uint32_t time1 = millis(); //用于迟滞控制时间控制
+		volatile uint32_t time2 = millis(); //用于等待吸水超时控制
+		bool pumpStatus = false;
+		PowDev.Valve(PumpCh, ENABLE); //开启水泵开始灌水
+		pumpStatus = true;
+		while (millis() - timelast < Valve_With_Flow_Total_TimeLimit) {
+			if (FlowData[ch].word >= flowlimit.word) {
+				break;
+			} else {
+				Water.RefreshData();
+				if (pumpStatus) {
+					if ((WaterData.byte & p_buf->data[0]) != 0) {
+						if (millis() - time1 > 2000) {
+							PowDev.Valve(PumpCh, DISABLE); //临时关闭水泵
+							time2 = millis();
+							pumpStatus = false;
+						}
+					} else {
+						time1 = millis();
+					}
+				} else {
+					if (((WaterData.byte & p_buf->data[0]) == 0)
+							|| (millis() - time2
+									> Valve_With_Flow_Interval_TimeLimit)) {
+						PowDev.Valve(PumpCh, ENABLE);
+						time1 = millis();
+						pumpStatus = true;
+					}
+				}
+			}
+		}
+	}
+	else { //强行注水
+		PowDev.Valve(PumpCh, ENABLE);//开启水泵开始灌水
+		while (millis() - timelast < Valve_With_Flow_Total_TimeLimit) {
+			if (FlowData[ch].word >= flowlimit.word) {
+				break;
+			}
 		}
 	}
 
+	PowDev.Valve(PumpCh, DISABLE);
 	if ((p_buf->data[0] & 0x01) != 0) {
 		PowDev.Valve(ValveCh_1, DISABLE);
 	}
@@ -359,7 +397,7 @@ void AutoContrl_Stepper_With_Limit(P_Buf_Typedef *p_buf) {
 		Limit.RefreshData();
 		Stepper.MoveOneStep(ch);
 		if (millis() - timelast > Stepper_With_Limit_TimeLimit) { //2min
-				break;
+			break;
 		}
 	}
 
@@ -400,8 +438,11 @@ void AutoContrl_Stepper_With_Presure(P_Buf_Typedef *p_buf) {
 					break;
 			}
 		}
-		if (millis() - timelast > Stepper_With_Presure_TimeLimit) {
+		if (millis() - timelast > Stepper_With_Pressure_TimeLimit) {
 			break;
+		}
+		if (pre_avg >= Stepper_With_Pressure_PressureLimit) {
+			return;
 		}
 	}
 
@@ -475,7 +516,6 @@ void AutoContrl_Stepper_With_Position(P_Buf_Typedef *p_buf) {
 
 	| ((uint32_t) p_buf->data[2] << 16) | ((uint32_t) p_buf->data[3] << 8)
 			| ((uint32_t) p_buf->data[4] << 0);
-
 
 	Stepper.MoveWithPosition(ch, position);
 	Protocol_Send(PC_Post_Complete, 4, PC_AutoContrl_Stepper_With_Position,
