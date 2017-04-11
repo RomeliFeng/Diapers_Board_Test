@@ -219,9 +219,9 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 	}
 
 	uint32_t timelast = millis();
+	uint32_t time1 = millis(); //用于迟滞控制时间控制
+	uint32_t time2 = millis(); //用于等待吸水超时控制
 	if (p_buf->data[4] == 0x01) { //结合液位探针信号自动控制注水
-		volatile uint32_t time1 = millis(); //用于迟滞控制时间控制
-		volatile uint32_t time2 = millis(); //用于等待吸水超时控制
 		bool pumpStatus = false;
 		PowDev.Valve(PumpCh, ENABLE); //开启水泵开始灌水
 		pumpStatus = true;
@@ -251,17 +251,21 @@ void AutoContrl_Valve_With_Flow(P_Buf_Typedef *p_buf) {
 				}
 			}
 		}
-	}
-	else { //强行注水
-		PowDev.Valve(PumpCh, ENABLE);//开启水泵开始灌水
+	} else { //强行注水
+		PowDev.Valve(PumpCh, ENABLE); //开启水泵开始灌水
 		while (millis() - timelast < Valve_With_Flow_Total_TimeLimit) {
 			if (FlowData[ch].word >= flowlimit.word) {
 				break;
 			}
 		}
 	}
-
 	PowDev.Valve(PumpCh, DISABLE);
+	time1 = millis();
+	while ((WaterData.byte & p_buf->data[0]) != 0) {
+		if (millis() - time1 > Valve_With_Flow_Interval_TimeLimit)
+			break;
+	}
+
 	if ((p_buf->data[0] & 0x01) != 0) {
 		PowDev.Valve(ValveCh_1, DISABLE);
 	}
