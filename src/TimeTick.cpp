@@ -44,7 +44,9 @@ void __attribute__((weak)) TimeTickISR() {
 
 extern "C" void TIM3_IRQHandler(void) {
 	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
-		TimeTickISR();
+		if (TimeTick.ThreadStart) {
+			TimeTickISR();
+		}
 		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	}
 }
