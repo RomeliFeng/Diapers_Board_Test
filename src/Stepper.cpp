@@ -10,6 +10,8 @@
 #include "Limit.h"
 #include "Protect.h"
 
+#define USE_PROTECT
+
 #define EN1_SET GPIOE->BSRR = GPIO_Pin_4
 #define EN1_RESET GPIOE->BRR = GPIO_Pin_4
 #define PUL1_SET GPIOE->BSRR= GPIO_Pin_6
@@ -77,14 +79,16 @@ void StepperClass::MoveWithStep(StepperCh_Typedef ch, uint32_t step) {
 void StepperClass::MoveOneStep(StepperCh_Typedef ch) {
 	uint16_t StepperDelay;
 
+#ifdef USE_PROTECT
 	if ((StepperLimit[ch].byte != 0) //锁定的极限限位
-	&& ((LimitData.byte & StepperLimit[ch].byte) == StepperLimit[ch].byte)) {
+			&& ((LimitData.byte & StepperLimit[ch].byte) == StepperLimit[ch].byte)) {
 		return;
 	}
 
 	if (StepperMoveProtect(ch) == false) { //基于Protect.cpp的限位移动保护
 		return;
 	}
+#endif
 
 	StepperDelay = (1000000 / StepperSpeed) >> 1;
 

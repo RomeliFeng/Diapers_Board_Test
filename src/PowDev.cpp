@@ -9,6 +9,8 @@
 #include "HC595.h"
 #include "Protect.h"
 
+#define USE_PROTECT
+
 volatile WordtoByte_Typedef PowDevStatus = { 0 };
 
 #define DS_PIN GPIO_Pin_6
