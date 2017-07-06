@@ -48,7 +48,8 @@ typedef union _MotorStatus_Typedef {
 
 class PowDevClass {
 public:
-	bool Valve(uint8_t status);
+	static uint8_t Status[3];
+	bool Valve(uint32_t status);
 	bool Valve(ValveCh_Typedef ch, FunctionalState NewState);
 	bool Motor(uint8_t status);
 	bool Motor(MotorCh_Typedef ch, uint8_t ctl);

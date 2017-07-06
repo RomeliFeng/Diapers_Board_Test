@@ -70,7 +70,7 @@ void Protocol_Analysis(PA_Struct_Typedef *pa_struct) {
 		return;
 	}
 	uint8_t frameLen = Serial.available();
-	Serial.read(pa_struct->data, frameLen); //读取帧数据到临时缓冲
+	Serial.read(pa_struct->data, frameLen); //取帧数据到临时缓冲
 	if (frameLen != 1 + 1 + pa_struct->data[DATALEN_OFFSET] + 1) { //判断帧数据长度是否正常
 		pa_struct->pa = PA_FrameError;
 		pa_struct->data[0] = 0xf2;

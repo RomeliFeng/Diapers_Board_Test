@@ -10,7 +10,7 @@
 #include "Limit.h"
 #include "Protect.h"
 
-#define USE_PROTECT
+//#define USE_PROTECT
 
 #define EN1_SET GPIOE->BSRR = GPIO_Pin_4
 #define EN1_RESET GPIOE->BRR = GPIO_Pin_4
@@ -28,7 +28,7 @@
 
 #define SPEED_NORMAL 1500
 #define SPEED_MAX 32000 //每秒最大步数
-#define SPEED_ACC 120000 //最大加速度 每秒
+#define SPEED_ACC 60000 //最大加速度 每秒
 
 StepperClass Stepper;
 
@@ -183,7 +183,7 @@ void StepperClass::TIMInit() {
 
 	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 1000000
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 180; //max acc 100000
 	TIM_TimeBaseInitStructure.TIM_Period = 100000 / (SPEED_ACC / 2);
 	TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);

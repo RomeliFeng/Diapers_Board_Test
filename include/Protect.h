@@ -20,7 +20,7 @@
 #define Motor_With_Limit_TimeLimit 10000
 #define Stepper_With_Limit_TimeLimit 120000
 #define Stepper_With_Pressure_TimeLimit 120000
-#define Stepper_With_Pressure_PressureLimit 10000/6
+#define Stepper_With_Pressure_PressureLimit 10000/6// 1 of 4.88g
 //#define Stepper_With_Step_TimeLimit 120000
 //#define Stepper_With_Position_TimeLimit 120000
 
